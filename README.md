@@ -3,6 +3,15 @@
 This project is used to add both application insights and cosmos db logging through serilog.
 
 ## Add Application Insights Logging
+Add the instrument key to the appSettings.json.
+```json
+{
+    "ApplicationInsights" : {
+        "InstrumentationKey" : "<Key>"
+    }
+}
+```
+Set the UseApplicationInsights Option to true.
 ```c#
 LoggerBootstrapper.InitializeServiceFabricRegistration(
     (serviceName, logger, configuration) =>
