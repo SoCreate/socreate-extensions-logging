@@ -12,7 +12,7 @@ namespace ActivityLogger
         public static void Main(string[] args)
         {
             LoggerBootstrapper.InitializeServiceFabricRegistration(
-                (serviceName, configuration, addloggingToServiceFabric) =>
+                (serviceName, configuration, addloggingToServiceContext) =>
                 {
                     var host = new HostBuilder()
                         .ConfigureHostConfiguration(configHost => { configHost.AddConfiguration(configuration); })
@@ -37,7 +37,7 @@ namespace ActivityLogger
                     activityLogger.LogSomeData(51, "This is the extension method");
                     
                     // if you had the service fabric context
-                    // addloggingToServiceFabric(ServiceContext);
+                    // addloggingToServiceContext(ServiceContext);
                     
                     // exit because the service fabric initialization ends with a sleep
                     Environment.Exit(1);

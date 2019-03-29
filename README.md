@@ -14,9 +14,13 @@ Add the instrument key to the appSettings.json.
 Set the UseApplicationInsights Option to true.
 ```c#
 LoggerBootstrapper.InitializeServiceFabricRegistration(
-    (serviceName, logger, configuration) =>
+    (serviceName, configuration, addloggingToServiceContext) =>
     {
         // Start Service
+        
+        // GetContext
+        // addloggingToServiceContext(serviceContext);
+        
     }, new ServiceFabricLoggerOptions
     {
         ServiceName = "Example",
@@ -61,7 +65,7 @@ the data will appear in Cosmos:
         "Version": "v1",
         "SourceContext": "Socreate.Api.Service.Controllers.Controller",
         "ActionId": "4a5007bf-6b50-4376-a2a2-d008b26b37b8",
-        "ActionName": "Socreate.Api.Service.Controllers.Controller.Get (Socreate.Financial.Api.Service)",
+        "ActionName": "Socreate.Api.Service.Controllers.Controller.Get (Socreate.Api.Service)",
         "RequestId": "0HLLCM97HDLNI:00000002",
         "RequestPath": "/api/socreate/credit/1",
         "CorrelationId": null,
@@ -85,25 +89,10 @@ Example:
 public class ExampleKeySet : IActivityKeySet
 {
     public const string SpecialExampleIdKey = "SpecialExampleId";
+    public const string AnotherExampleIdKey = "AnotherExampleId";
 
     public int SpecialExampleId { get; set; }
-
-    public Dictionary<string, string> ToDictionary()
-    {
-        var keyDictionary = new Dictionary<string, string>();
-        var fields = GetType().GetFields();
-
-        foreach (var prop in GetType().GetProperties())
-        {
-            if (prop.GetValue(this) != null)
-            {
-                var keyName = fields.First(f => f.Name == prop.Name + "Key");
-                keyDictionary.Add(keyName.GetValue(this).ToString(), prop.GetValue(this).ToString());
-            }
-        }
-
-        return keyDictionary;
-    }
+    public int AnotherExampleId { get; set; }
 }
 ```
 
@@ -133,9 +122,12 @@ logs. The version is there in case there is a need for a schema change and diffe
 ```c#
 -- Program.cs
 LoggerBootstrapper.InitializeServiceFabricRegistration(
-    (serviceName, logger, configuration) =>
+    (serviceName, configuration, addloggingToServiceContext) =>
     {
         // Start up Service
+        
+        // GetContext
+        // addloggingToServiceContext(serviceContext);
     }, new ServiceFabricLoggerOptions
     {
         ServiceName = "Example",
@@ -165,14 +157,9 @@ public class Controller : ControllerBase
     }
     public void LogData()
     {
-        _activityLogger.LogActivity(
-            new ExampleKeySet {SpecialExampleId = new Random((int) DateTime.Now.ToOADate()).Next()},
-            ExampleActionType.Default,
-            new Dictionary<string, object>
-            {
-                {"Extra", "Data"}
-            },
-            "Logging Activity with Message: {Structure}",
+        var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
+        _activityLogger.LogActivity( new ExampleKeySet {SpecialExampleId = randomId}, ExampleActionType.Default,
+            new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
             "This is more information");
     }
 }
