@@ -4,7 +4,7 @@ using Microsoft.Azure.Documents.SystemFunctions;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    public class ActivityKeySet : IActivityKeySet
+    public abstract class ActivityKeySet : IActivityKeySet
     {
         protected static Dictionary<string, string> MemoisedDictionary;
 
