@@ -5,7 +5,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
     public interface IActivityLogger
     {
         void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType,
-            Dictionary<string, object> additionalData, string message,
+            AdditionalData additionalData, string message,
             params object[] messageData);
     }
     

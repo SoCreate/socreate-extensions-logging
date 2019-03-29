@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Fabric;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using SoCreate.Extensions.Logging.ApplicationInsightsLogger;
+using SoCreate.Extensions.Logging.ServiceFabric;
 using SerilogILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging
@@ -27,7 +29,7 @@ namespace SoCreate.Extensions.Logging
         }
 
         public static void InitializeServiceFabricRegistration(
-            Action<string, SerilogILogger, IConfiguration> registerServicesFunction,
+            Action<string, IConfiguration, Action<ServiceContext>> registerServicesFunction,
             ServiceFabricLoggerOptions serviceFabricLoggerOptions)
         {
             var configuration = GetConfiguration();
@@ -56,7 +58,9 @@ namespace SoCreate.Extensions.Logging
             {
                 Log.Information($"Initializing {serviceFabricLoggerOptions.ServiceName} Service.");
 
-                registerServicesFunction(serviceFabricLoggerOptions.ServiceTypeName, Log.Logger, configuration);
+                registerServicesFunction(
+                    serviceFabricLoggerOptions.ServiceTypeName, configuration,
+                    serviceContext => { Log.Logger.EnrichLoggerWithContextProperties(serviceContext); });
 
                 Log.Information($"{serviceFabricLoggerOptions.ServiceTypeName} service type registered.");
 
