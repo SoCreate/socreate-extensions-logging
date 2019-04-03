@@ -38,45 +38,30 @@ short message that is shown to the customer as well as extra data that is used f
 the data will appear in Cosmos:
 ```json
 {
-    "EventIdHash": 3760679657,
-    "Discriminator": "ActivityLog",
-    "Timestamp": "2019-03-19 21:32:05.414+00:00",
+    "EventIdHash": 2837138426,
+    "Timestamp": "2019-04-03 22:06:27.121+00:00",
     "Level": "Information",
-    "Message": "Accessed Credit 1",
-    "MessageTemplate": "Accessed Credit {Id}",
+    "Message": "Did you see that interesting thing? \"This is the extension method\"",
+    "MessageTemplate": "Did you see that interesting thing? {InterestingString}",
     "Properties": {
-        "Id": 1,
-        "LogType": "ActivityLogType",
-        "AgentInformation": {
-            "AgentId": 123,
-            "AgentEmailAddress": "person@aol.com",
-            "AgentName": "Billy Jean",
-            "IsDeveloper": true,
-            "IpAddress": "127.0.0.1"
-        },
+        "InterestingString": "This is the extension method",
         "AdditionalProperties": {
-            "Amount": "10.50"
+            "Time": "2019-04-03T15:06:27.1212753-07:00"
         },
-        "ActionType": "GetCredit",
+        "LogType": "ActivityLogType",
+        "ActionType": 1,
         "KeySet": {
-            "FinancialAccountId": "1",
-            "CreditId": "1"
+            "SpecialExampleId": "1134040416"
         },
         "Version": "v1",
-        "SourceContext": "Socreate.Api.Service.Controllers.Controller",
-        "ActionId": "4a5007bf-6b50-4376-a2a2-d008b26b37b8",
-        "ActionName": "Socreate.Api.Service.Controllers.Controller.Get (Socreate.Api.Service)",
-        "RequestId": "0HLLCM97HDLNI:00000002",
-        "RequestPath": "/api/socreate/credit/1",
-        "CorrelationId": null,
-        "ConnectionId": "0HLLCM97HDLNI"
+        "SourceContext": "ActivityLogger.ExampleActionType"
     },
-    "id": "7dc00b5f-a1b4-5ab8-b4a3-33024901bff6",
-    "_rid": "uFBsAOGDq3gCAAAAAAAAAA==",
-    "_self": "dbs/uFBsAA==/colls/uFBsAOGDq3g=/docs/uFBsAOGDq3gCAAAAAAAAAA==/",
-    "_etag": "\"00000000-0000-0000-dea8-094e4d2c01d4\"",
+    "id": "8242363f-2184-c1ae-8dcc-47919eb1ffb4",
+    "_rid": "Gdd8AOSaENQDAAAAAAAAAA==",
+    "_self": "dbs/Gdd8AA==/colls/Gdd8AOSaENQ=/docs/Gdd8AOSaENQDAAAAAAAAAA==/",
+    "_etag": "\"00000000-0000-0000-ea69-7c005d9a01d4\"",
     "_attachments": "attachments/",
-    "_ts": 1553036639
+    "_ts": 1554329187
 }
 ```
 
@@ -164,4 +149,18 @@ public class Controller : ControllerBase
     }
 }
 
+```
+
+
+## Update the Logging Level
+
+The Logger Bootstrapper holds the logging level switch. The minimum logging level can be changed in runtime; It defaults to LogEventLevel.Information.
+You will need to implement either a UI or endpoint to allow a use to change this value on the fly.
+
+```c#
+// Change to Debug
+LoggerBootstrapper.LoggingLevelSwitch.MinimumLevel = LogEventLevel.Debug;
+
+//Change back to Information
+LoggerBootstrapper.LoggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
 ```

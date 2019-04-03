@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Context;
@@ -38,9 +37,9 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("ActionType", actionType, true),
                 new PropertyEnricher(LoggerBootstrapper.LogTypeKey, _activityLogType)
             };
-            if (!additionalData.IsNull())
+            if (additionalData != null)
             {
-                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Dictionary, true));
+                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
             }
 
             using (LogContext.Push(properties.ToArray()))

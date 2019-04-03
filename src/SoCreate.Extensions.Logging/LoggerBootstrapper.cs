@@ -29,7 +29,7 @@ namespace SoCreate.Extensions.Logging
         }
 
         public static void InitializeServiceFabricRegistration(
-            Action<string, IConfiguration, Action<ServiceContext>> registerServicesFunction,
+            Action<string, IConfiguration, Action<ServiceContext>> registerService,
             ServiceFabricLoggerOptions serviceFabricLoggerOptions)
         {
             var configuration = GetConfiguration();
@@ -58,7 +58,7 @@ namespace SoCreate.Extensions.Logging
             {
                 Log.Information($"Initializing {serviceFabricLoggerOptions.ServiceName} Service.");
 
-                registerServicesFunction(
+                registerService(
                     serviceFabricLoggerOptions.ServiceTypeName, configuration,
                     serviceContext => { Log.Logger.EnrichLoggerWithContextProperties(serviceContext); });
 
@@ -86,14 +86,7 @@ namespace SoCreate.Extensions.Logging
             {
                 if (!e.Properties.TryGetValue(propertyName, out var propertyValue)) return false;
                 
-                if (propertyValue is StructureValue stValue)
-                {
-                    var value = stValue.Properties.FirstOrDefault(cc => cc.Name == "Id");
-                    var result = scalar.Equals(value?.Value);
-                    return result;
-                }
-
-                return propertyValue.Equals(scalar);
+                return propertyValue == scalarValue || propertyValue.Equals(scalar);
             };
         }
 

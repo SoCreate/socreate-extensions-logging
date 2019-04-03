@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SoCreate.Extensions.Logging.ActivityLogger;
+﻿using SoCreate.Extensions.Logging.ActivityLogger;
 
 namespace ActivityLogger
 {

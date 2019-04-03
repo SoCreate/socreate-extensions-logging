@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using SoCreate.Extensions.Logging;
 using SoCreate.Extensions.Logging.ActivityLogger;
 
@@ -12,14 +13,15 @@ namespace ActivityLogger
         public static void Main(string[] args)
         {
             LoggerBootstrapper.InitializeServiceFabricRegistration(
-                (serviceName, configuration, addloggingToServiceContext) =>
+                (serviceName, configuration, addServiceContextToLogging) =>
                 {
                     var host = new HostBuilder()
                         .ConfigureHostConfiguration(configHost => { configHost.AddConfiguration(configuration); })
                         .ConfigureServices((hostContext, services) =>
                         {
+                            // Add your type of implemented Activity Logger if you extended it or implemented directly
+                            // against the interface.
                             services.AddActivityLogger(typeof(ActivityLogger<>));
-                            services.AddSingleton(configuration);
                         }).Build();
 
                     var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
@@ -37,8 +39,10 @@ namespace ActivityLogger
                     activityLogger.LogSomeData(51, "This is the extension method");
                     
                     // if you had the service fabric context
-                    // addloggingToServiceContext(ServiceContext);
+                    // addServiceContextToLogging(ServiceContext);
                     
+                    // Flush for this example, normally handled in the InitializeServiceFabricRegistration function
+                    Log.CloseAndFlush();
                     // exit because the service fabric initialization ends with a sleep
                     Environment.Exit(1);
                 }, new ServiceFabricLoggerOptions

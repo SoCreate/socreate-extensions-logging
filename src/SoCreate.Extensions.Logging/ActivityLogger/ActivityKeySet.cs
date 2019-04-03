@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Azure.Documents.SystemFunctions;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
@@ -10,14 +9,14 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
         public virtual Dictionary<string, string> ToDictionary()
         {
-            if (!MemoisedDictionary.IsNull()) return MemoisedDictionary;
+            if (MemoisedDictionary != null) return MemoisedDictionary;
 
             var keyDictionary = new Dictionary<string, string>();
             var fields = GetType().GetFields();
 
             foreach (var prop in GetType().GetProperties())
             {
-                if (!prop.GetValue(this).IsNull())
+                if (prop.GetValue(this) != null)
                 {
                     var keyName = fields.First(f => f.Name == prop.Name + "Key");
                     keyDictionary.Add(keyName.GetValue(this).ToString(), prop.GetValue(this).ToString());
