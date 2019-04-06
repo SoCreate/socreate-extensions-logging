@@ -37,8 +37,10 @@ namespace SoCreate.Extensions.Logging
             if (serviceFabricLoggerOptions.UseApplicationInsights)
             {
                 var instrumentationKey = configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-                loggerConfiguration.WithApplicationInsights(instrumentationKey);
+                loggerConfiguration.WithApplicationInsights(instrumentationKey,
+                    serviceFabricLoggerOptions.GetUserIdFromContext);
             }
+
             if (serviceFabricLoggerOptions.UseActivityLogger)
             {
                 var uri = new Uri(configuration.GetValue<string>("Azure:CosmosDb:Uri"));

@@ -37,10 +37,10 @@ namespace ActivityLogger
 
                     // use the activity logger extensions
                     activityLogger.LogSomeData(51, "This is the extension method");
-                    
+
                     // if you had the service fabric context
                     // addServiceContextToLogging(ServiceContext);
-                    
+
                     // Flush for this example, normally handled in the InitializeServiceFabricRegistration function
                     Log.CloseAndFlush();
                     // exit because the service fabric initialization ends with a sleep
