@@ -25,7 +25,8 @@ LoggerBootstrapper.InitializeServiceFabricRegistration(
     {
         ServiceName = "Example",
         ServiceTypeName = "ExampleServiceType",
-        UseApplicationInsights = true
+        UseApplicationInsights = true,
+        GetUserIdFromContext = () => { return UserId; } // Implement this to get the user from your context
     }
 );
 
@@ -49,7 +50,7 @@ the data will appear in Cosmos:
             "Time": "2019-04-03T15:06:27.1212753-07:00"
         },
         "LogType": "ActivityLogType",
-        "ActionType": 1,
+        "ActionType": "Default",
         "KeySet": {
             "SpecialExampleId": "1134040416"
         },
