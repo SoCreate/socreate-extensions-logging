@@ -31,7 +31,7 @@ namespace SoCreate.Extensions.Logging
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
 
             builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
-            builder.AddFilter<SerilogLoggerProvider>(null, LogLevel.Trace);
+            builder.AddFilter<LoggerProvider>(null, LogLevel.Trace);
 
             return builder;
         }
@@ -56,7 +56,7 @@ namespace SoCreate.Extensions.Logging
                 serviceProvider.GetRequiredService<ActivityLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig);
             }
-
+            
             return new LoggerProvider(loggerConfig.CreateLogger());
         }
 
