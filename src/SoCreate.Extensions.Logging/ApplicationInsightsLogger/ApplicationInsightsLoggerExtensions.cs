@@ -10,9 +10,16 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
 {
     static class ApplicationInsightsLoggerExtensions
     {
+        public static Func<int> GetUserIdFromContext { get; set; }
+
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
-            string instrumentationKey)
+            string instrumentationKey, Func<int> getUserId = null)
         {
+            if (getUserId != null)
+            {
+                GetUserIdFromContext = getUserId;
+            }
+
             var telemetryConfig = new TelemetryConfiguration(instrumentationKey);
             config.WriteTo.ApplicationInsights(telemetryConfig, ConvertLogEventsToTelemetry);
             return config;
@@ -28,11 +35,10 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
                 telemetry.Context.Operation.Id = Activity.Current?.RootId;
             }
 
-            // TODO add User ID
-            /*if (logEvent.Properties.ContainsKey("UserId"))
+            if (GetUserIdFromContext != null)
             {
-                telemetry.Context.User.Id = logEvent.Properties["UserId"].ToString();
-            }*/
+                telemetry.Context.User.Id = GetUserIdFromContext().ToString();
+            }
 
             return telemetry;
         }

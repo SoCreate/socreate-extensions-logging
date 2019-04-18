@@ -22,12 +22,6 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "v1";
         }
 
-        public void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType, string message,
-            params object[] messageData)
-        {
-            LogActivity(keySet, actionType, null, message, messageData);
-        }
-
         public void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType,
             AdditionalData additionalData, string message, params object[] messageData)
         {
@@ -36,12 +30,12 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("KeySet", keySet.ToDictionary()),
-                new PropertyEnricher("ActionType", actionType, true),
+                new PropertyEnricher("ActionType", actionType.ToString(), true),
                 new PropertyEnricher(ActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
-            if (!additionalData.IsNull())
+            if (additionalData != null)
             {
-                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Dictionary, true));
+                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
             }
 
             using (LogContext.Push(properties.ToArray()))
