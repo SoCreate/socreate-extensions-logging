@@ -11,7 +11,26 @@ namespace ActivityLogger
     {
         public static void Main(string[] args)
         {
-            var host = new HostBuilder()
+            using (var host = CreateHost())
+            {
+                var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
+
+                var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
+                // use the activity logger directly
+                activityLogger.LogActivity(
+                    new ExampleKeySet { SpecialExampleId = randomId },
+                    ExampleActionType.Default,
+                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
+                    "Logging Activity with Message: {Structure}",
+                    "This is more information");
+
+                // use the activity logger extensions
+                activityLogger.LogSomeData(51, "This is the extension method");
+            }
+        }
+
+        private static IHost CreateHost() =>
+            new HostBuilder()
                 .ConfigureAppConfiguration(builder => builder
                     .AddJsonFile("appsettings.json", false, true)
                     .AddJsonFile(
@@ -25,22 +44,6 @@ namespace ActivityLogger
                         UseApplicationInsights = false
                     }))
                 .Build();
-
-            var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
-
-            var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
-            // use the activity logger directly
-            activityLogger.LogActivity(
-                new ExampleKeySet {SpecialExampleId = randomId},
-                ExampleActionType.Default,
-                new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
-                "Logging Activity with Message: {Structure}",
-                "This is more information");
-
-            // use the activity logger extensions
-            activityLogger.LogSomeData(51, "This is the extension method");
-
-            host.Dispose();
-        }
+        
     }
 }
