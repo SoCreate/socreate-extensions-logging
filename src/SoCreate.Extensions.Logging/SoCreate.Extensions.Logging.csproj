@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Jonathan McElroy</Authors>
+    <Authors>Jonathan McElroy, Jami Lurock</Authors>
     <Company>SoCreate</Company>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://github.com/SoCreate/socreate-extensions-logging/blob/master/LICENSE</PackageLicenseUrl>
