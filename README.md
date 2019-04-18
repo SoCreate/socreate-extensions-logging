@@ -1,4 +1,4 @@
-# Socreate Extensions Logging
+# SoCreate Logging
 
 This project is used to add both application insights and cosmos db logging through serilog.
 
@@ -13,26 +13,21 @@ Add the instrument key to the appSettings.json.
 ```
 Set the UseApplicationInsights Option to true.
 ```c#
-LoggerBootstrapper.InitializeServiceFabricRegistration(
-    (serviceName, configuration, addloggingToServiceContext) =>
-    {
-        // Start Service
-        
-        // GetContext
-        // addloggingToServiceContext(serviceContext);
-        
-    }, new ServiceFabricLoggerOptions
-    {
-        ServiceName = "Example",
-        ServiceTypeName = "ExampleServiceType",
-        UseApplicationInsights = true
-    }
-);
+var host = new HostBuilder()
+    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {UseApplicationInsights = true})
+    .Build();
 
 ```
 
 
 ## Add Activity Logging (Powered By Cosmos DB)
+Set the UseActivityLogger Option to true.
+```c#
+var host = new HostBuilder()
+    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {UseActivityLogger = true})
+    .Build();
+
+```
 The Activity logger is powered by Cosmos DB and is used to keep track of user activity. The structured logging has a 
 short message that is shown to the customer as well as extra data that is used for debugging. Here is an example of how
 the data will appear in Cosmos:
@@ -118,34 +113,8 @@ logs. The version is there in case there is a need for a schema change and diffe
 }
 ```
 
-### 3. Setup the Services and Options
-```c#
--- Program.cs
-LoggerBootstrapper.InitializeServiceFabricRegistration(
-    (serviceName, configuration, addloggingToServiceContext) =>
-    {
-        // Start up Service
-        
-        // GetContext
-        // addloggingToServiceContext(serviceContext);
-    }, new ServiceFabricLoggerOptions
-    {
-        ServiceName = "Example",
-        ServiceTypeName = "ExampleServiceType",
-        UseActivityLogger = true
-    }
-);
 
--- Startup.cs
-public void ConfigureServices(IServiceCollection services)
-{
-    // If you have a child class of ActivityLogger, then add that type instead
-    serviceCollection.AddActivityLogger(typeof(ActivityLogger<>));
-}
-
-```
-
-### 4. Use the Logger from the DI
+### 3. Use the Logger from the DI
 ```c#
 public class Controller : ControllerBase
 {
