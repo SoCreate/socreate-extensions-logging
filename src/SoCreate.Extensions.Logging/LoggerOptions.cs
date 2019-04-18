@@ -7,7 +7,7 @@ namespace SoCreate.Extensions.Logging
         public LoggerOptions()
         {
             UseApplicationInsights = true;
-            UseActivityLogger = true;
+            UseActivityLogger = false;
         }
 
         public bool UseApplicationInsights { get; set; }

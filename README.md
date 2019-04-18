@@ -21,6 +21,11 @@ var host = new HostBuilder()
 
 
 ## Add Activity Logging (Powered By Cosmos DB)
+
+> When developing make sure to install and run the Cosmos DB local emulator otherwise this will not work.
+https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator
+
+
 Set the UseActivityLogger Option to true.
 ```c#
 var host = new HostBuilder()
