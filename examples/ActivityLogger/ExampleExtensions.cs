@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using SoCreate.Extensions.Logging.ActivityLogger;
 
 namespace ActivityLogger

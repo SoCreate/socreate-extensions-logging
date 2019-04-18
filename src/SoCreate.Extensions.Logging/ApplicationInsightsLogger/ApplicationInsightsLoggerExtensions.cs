@@ -8,7 +8,7 @@ using Serilog.ExtensionMethods;
 
 namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
 {
-    public static class ApplicationInsightsLoggerExtensions
+    static class ApplicationInsightsLoggerExtensions
     {
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
             string instrumentationKey)

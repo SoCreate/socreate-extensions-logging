@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Serilog.Context;
 using Serilog.Core;
 using Serilog.Core.Enrichers;
+using ILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    public class ActivityLogger<TSourceContext> : IActivityLogger<TSourceContext>
+    class ActivityLogger<TSourceContext> : IActivityLogger<TSourceContext>
     {
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
 
-        public ActivityLogger(ILogger logger, IConfiguration configuration)
+        public ActivityLogger(ILoggerProvider loggerProvider, IConfiguration configuration)
         {
-            _logger = logger;
+            _logger = ((LoggerProvider)loggerProvider).Logger;
             _activityLogType = configuration.GetValue<string>("ActivityLogger:ActivityLogType") ?? "DefaultType";
             _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "v1";
         }
@@ -36,7 +37,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("KeySet", keySet.ToDictionary()),
                 new PropertyEnricher("ActionType", actionType, true),
-                new PropertyEnricher(LoggerBootstrapper.LogTypeKey, _activityLogType)
+                new PropertyEnricher(ActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
             if (!additionalData.IsNull())
             {

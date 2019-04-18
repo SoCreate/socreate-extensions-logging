@@ -6,7 +6,7 @@ using Serilog.Core.Enrichers;
 
 namespace SoCreate.Extensions.Logging.ServiceFabric
 {
-    public static class ServiceFabricLoggingExtensions
+    static class ServiceFabricLoggingExtensions
     {
         public static ILogger EnrichLoggerWithContextProperties(this ILogger logger, ServiceContext serviceContext)
         {

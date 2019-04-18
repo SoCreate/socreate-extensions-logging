@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SoCreate.Extensions.Logging.ActivityLogger
+﻿namespace SoCreate.Extensions.Logging.ActivityLogger
 {
     public interface IActivityLogger
     {

@@ -1,9 +1,13 @@
 ﻿namespace SoCreate.Extensions.Logging
 {
-    public class ServiceFabricLoggerOptions
+    public class LoggerOptions
     {
-        public string ServiceName { get; set; }
-        public string ServiceTypeName { get; set; }
+        public LoggerOptions()
+        {
+            UseApplicationInsights = true;
+            UseActivityLogger = true;
+        }
+
         public bool UseApplicationInsights { get; set; }
         public bool UseActivityLogger { get; set; }
     }

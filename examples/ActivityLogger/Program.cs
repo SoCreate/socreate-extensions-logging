@@ -11,43 +11,29 @@ namespace ActivityLogger
     {
         public static void Main(string[] args)
         {
-            LoggerBootstrapper.InitializeServiceFabricRegistration(
-                (serviceName, configuration, addloggingToServiceContext) =>
-                {
-                    var host = new HostBuilder()
-                        .ConfigureHostConfiguration(configHost => { configHost.AddConfiguration(configuration); })
-                        .ConfigureServices((hostContext, services) =>
-                        {
-                            services.AddActivityLogger(typeof(ActivityLogger<>));
-                            services.AddSingleton(configuration);
-                        }).Build();
+            var host = new HostBuilder()
+                .ConfigureAppConfiguration(builder => builder
+                    .AddJsonFile("appsettings.json", false, true)
+                    .AddJsonFile(
+                        $"appsettings.{Environment.GetEnvironmentVariable("APP_ENVIRONMENT") ?? "Production"}.json",
+                        true
+                ))
+                .ConfigureLogging(builder => builder.AddServiceLogging())
+                .Build();
 
-                    var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
+            var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
 
-                    var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
-                    // use the activity logger directly
-                    activityLogger.LogActivity(
-                        new ExampleKeySet {SpecialExampleId = randomId},
-                        ExampleActionType.Default,
-                        new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
-                        "Logging Activity with Message: {Structure}",
-                        "This is more information");
+            var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
+            // use the activity logger directly
+            activityLogger.LogActivity(
+                new ExampleKeySet { SpecialExampleId = randomId },
+                ExampleActionType.Default,
+                new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
+                "Logging Activity with Message: {Structure}",
+                "This is more information");
 
-                    // use the activity logger extensions
-                    activityLogger.LogSomeData(51, "This is the extension method");
-                    
-                    // if you had the service fabric context
-                    // addloggingToServiceContext(ServiceContext);
-                    
-                    // exit because the service fabric initialization ends with a sleep
-                    Environment.Exit(1);
-                }, new ServiceFabricLoggerOptions
-                {
-                    ServiceName = "Example",
-                    ServiceTypeName = "ExampleServiceType",
-                    UseActivityLogger = true
-                }
-            );
+            // use the activity logger extensions
+            activityLogger.LogSomeData(51, "This is the extension method");
         }
     }
 }
