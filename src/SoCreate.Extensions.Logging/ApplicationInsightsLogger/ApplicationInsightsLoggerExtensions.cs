@@ -20,7 +20,11 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
                 GetUserIdFromContext = getUserId;
             }
 
-            var telemetryConfig = new TelemetryConfiguration(instrumentationKey);
+            // If there is not a key, just use active
+            var telemetryConfig = string.IsNullOrEmpty(instrumentationKey)
+                ? TelemetryConfiguration.Active
+                : new TelemetryConfiguration(instrumentationKey);
+
             config.WriteTo.ApplicationInsights(telemetryConfig, ConvertLogEventsToTelemetry);
             return config;
         }

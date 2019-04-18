@@ -17,16 +17,21 @@ namespace ActivityLogger
                     .AddJsonFile(
                         $"appsettings.{Environment.GetEnvironmentVariable("APP_ENVIRONMENT") ?? "Production"}.json",
                         true
-                ))
-                .ConfigureLogging(builder => builder.AddServiceLogging())
+                    ))
+                .ConfigureLogging(builder =>
+                    builder.AddServiceLogging(new LoggerOptions
+                    {
+                        UseActivityLogger = true,
+                        UseApplicationInsights = false
+                    }))
                 .Build();
 
             var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
 
-            var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
+            var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
             // use the activity logger directly
             activityLogger.LogActivity(
-                new ExampleKeySet { SpecialExampleId = randomId },
+                new ExampleKeySet {SpecialExampleId = randomId},
                 ExampleActionType.Default,
                 new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                 "Logging Activity with Message: {Structure}",
