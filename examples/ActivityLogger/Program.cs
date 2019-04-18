@@ -39,6 +39,8 @@ namespace ActivityLogger
 
             // use the activity logger extensions
             activityLogger.LogSomeData(51, "This is the extension method");
+
+            host.Dispose();
         }
     }
 }
