@@ -13,10 +13,10 @@ namespace SoCreate.Extensions.Logging
             _configuration = configuration;
         }
 
-        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration)
+        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, LoggerOptions options)
         {
             var instrumentationKey = _configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-            return loggerConfiguration.WithApplicationInsights(instrumentationKey);
+            return loggerConfiguration.WithApplicationInsights(instrumentationKey, options.GetUserId);
         }
     }
 }

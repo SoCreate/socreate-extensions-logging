@@ -10,7 +10,7 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
 {
     static class ApplicationInsightsLoggerExtensions
     {
-        public static Func<int> GetUserIdFromContext { get; set; }
+        static Func<int> GetUserIdFromContext { get; set; }
 
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
             string instrumentationKey, Func<int> getUserId = null)

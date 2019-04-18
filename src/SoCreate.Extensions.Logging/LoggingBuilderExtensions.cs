@@ -48,7 +48,7 @@ namespace SoCreate.Extensions.Logging
             if (options.UseApplicationInsights)
             {
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
-                    .ApplyConfiguration(loggerConfig);
+                    .ApplyConfiguration(loggerConfig, options);
             }
 
             if (options.UseActivityLogger)
