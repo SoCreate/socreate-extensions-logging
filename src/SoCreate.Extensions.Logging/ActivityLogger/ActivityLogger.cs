@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
