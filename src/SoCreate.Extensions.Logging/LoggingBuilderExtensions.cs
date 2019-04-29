@@ -38,7 +38,7 @@ namespace SoCreate.Extensions.Logging
 
         private static Action<ServiceContext> EnrichLoggerWithContext(IServiceProvider serviceProvider)
         {
-            return context => serviceProvider.GetRequiredService<LoggerProvider>().Logger.EnrichLoggerWithContextProperties(context);
+            return context => ((LoggerProvider)serviceProvider.GetRequiredService<ILoggerProvider>()).Logger.EnrichLoggerWithContextProperties(context);
         }
 
         private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, LoggerOptions options)
