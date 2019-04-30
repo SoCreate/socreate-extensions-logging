@@ -1,41 +1,32 @@
-﻿using System.Collections.Generic;
-using System.Fabric;
+﻿using System.Fabric;
 using System.Globalization;
 using Serilog;
-using Serilog.Core.Enrichers;
+using Serilog.Context;
 
 namespace SoCreate.Extensions.Logging.ServiceFabric
 {
     static class ServiceFabricLoggingExtensions
     {
-        public static ILogger EnrichLoggerWithContextProperties(this ILogger logger, ServiceContext serviceContext)
+        public static void EnrichLoggerWithContextProperties(this ILogger logger, ServiceContext serviceContext)
         {
-            var properties = new List<PropertyEnricher>
-            {
-                new PropertyEnricher(ServiceContextProperties.ServiceTypeName, serviceContext.ServiceTypeName),
-                new PropertyEnricher(ServiceContextProperties.ServiceName, serviceContext.ServiceName),
-                new PropertyEnricher(ServiceContextProperties.PartitionId, serviceContext.PartitionId),
-                new PropertyEnricher(ServiceContextProperties.NodeName, serviceContext.NodeContext.NodeName),
-                new PropertyEnricher(ServiceContextProperties.ApplicationName,
-                    serviceContext.CodePackageActivationContext.ApplicationName),
-                new PropertyEnricher(ServiceContextProperties.ApplicationTypeName,
-                    serviceContext.CodePackageActivationContext.ApplicationTypeName),
-                new PropertyEnricher(ServiceContextProperties.ServicePackageVersion,
-                    serviceContext.CodePackageActivationContext.CodePackageVersion)
-            };
+            LogContext.PushProperty(ServiceContextProperties.ServiceTypeName, serviceContext.ServiceTypeName);
+            LogContext.PushProperty(ServiceContextProperties.ServiceName, serviceContext.ServiceName);
+            LogContext.PushProperty(ServiceContextProperties.PartitionId, serviceContext.PartitionId);
+            LogContext.PushProperty(ServiceContextProperties.NodeName, serviceContext.NodeContext.NodeName);
+            LogContext.PushProperty(ServiceContextProperties.ApplicationName, serviceContext.CodePackageActivationContext.ApplicationName);
+            LogContext.PushProperty(ServiceContextProperties.ApplicationTypeName, serviceContext.CodePackageActivationContext.ApplicationTypeName);
+            LogContext.PushProperty(ServiceContextProperties.ServicePackageVersion, serviceContext.CodePackageActivationContext.CodePackageVersion);
 
             if (serviceContext is StatelessServiceContext)
             {
-                properties.Add(new PropertyEnricher(ServiceContextProperties.InstanceId,
-                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture)));
+                LogContext.PushProperty(ServiceContextProperties.InstanceId,
+                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture));
             }
             else if (serviceContext is StatefulServiceContext)
             {
-                properties.Add(new PropertyEnricher(ServiceContextProperties.ReplicaId,
-                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture)));
+                LogContext.PushProperty(ServiceContextProperties.ReplicaId,
+                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture));
             }
-
-            return logger.ForContext(properties);
         }
 
         private static class ServiceContextProperties
