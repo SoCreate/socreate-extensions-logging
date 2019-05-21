@@ -31,6 +31,7 @@ namespace ActivityLogger
 
         private static IHost CreateHost() =>
             new HostBuilder()
+                .UseEnvironment(Environment.GetEnvironmentVariable("APP_ENVIRONMENT"))
                 .ConfigureAppConfiguration(builder => builder
                     .AddJsonFile("appsettings.json", false, true)
                     .AddJsonFile(
