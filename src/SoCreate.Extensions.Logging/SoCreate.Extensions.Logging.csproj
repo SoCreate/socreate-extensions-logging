@@ -13,18 +13,18 @@
     <Copyright>© SoCreate. All rights reserved.</Copyright>
     <Version>1.1.0</Version>
     <LangVersion>8</LangVersion>
-    <NullableContextOptions>enable</NullableContextOptions>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview5.19227.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0-preview5.19227.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0-preview5.19227.9" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data.Extensions" Version="1.4.658" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data.Extensions" Version="1.4.664" />
     <PackageReference Include="Serilog" Version="2.8.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.0-dev-10240" />
     <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="2.6.4" />

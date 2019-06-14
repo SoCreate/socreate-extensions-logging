@@ -7,17 +7,20 @@ using SoCreate.Extensions.Logging.ServiceFabric;
 using System;
 using System.Fabric;
 using System.Text.Encodings.Web;
+using Microsoft.Extensions.Configuration;
 using SoCreate.Extensions.Logging.ApplicationInsightsLogger;
 
 namespace SoCreate.Extensions.Logging
 {
     public static class LoggingBuilderExtensions
     {
-        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, LoggerOptions options = null)
+        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions options = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
             options = options ?? new LoggerOptions();
+
+            builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
 
             if (options.UseActivityLogger)
             {

@@ -1,12 +1,11 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -20,13 +19,12 @@ namespace SoCreate.Extensions.Logging
         private readonly bool _showTestOutput;
 
         public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger,
-            LoggingLevelSwitch loggingLevelSwitch, IConfiguration configuration)
+            LoggingLevelSwitch loggingLevelSwitch, IOptions<LoggingMiddlewareOptions> logOptions)
         {
             _next = next;
             _logger = logger;
             _loggingLevelSwitch = loggingLevelSwitch;
-            _showTestOutput = Convert.ToBoolean(configuration.GetSection("ApplicationProperties").GetSection("ShowTestOutput").Value);
-
+            _showTestOutput = logOptions.Value.ShowTestOutput;
         }
 
         public async Task Invoke(HttpContext context)
@@ -60,12 +58,6 @@ namespace SoCreate.Extensions.Logging
             else
             {
                 await _next(context);
-            }
-
-            // TODO add logging for different responses
-            if (context.Response.StatusCode == (int) HttpStatusCode.NotFound)
-            {
-                _logger.LogSecurity(400001, "Item not found.");
             }
         }
 
