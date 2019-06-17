@@ -11,7 +11,6 @@ namespace ActivityLogger
     {
         public static void Main(string[] args)
         {
-            Environment.SetEnvironmentVariable("App_Environment", "Development");
             using (var host = CreateHost())
             {
                 var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
