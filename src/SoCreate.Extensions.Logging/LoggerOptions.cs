@@ -12,6 +12,6 @@ namespace SoCreate.Extensions.Logging
 
         public bool UseApplicationInsights { get; set; }
         public bool UseActivityLogger { get; set; }
-        public Func<int> GetUserId { get; set; }
+        public Func<int>? GetUserId { get; set; }
     }
 }

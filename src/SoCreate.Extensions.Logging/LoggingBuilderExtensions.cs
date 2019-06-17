@@ -14,7 +14,7 @@ namespace SoCreate.Extensions.Logging
 {
     public static class LoggingBuilderExtensions
     {
-        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions options = null)
+        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions? options = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
