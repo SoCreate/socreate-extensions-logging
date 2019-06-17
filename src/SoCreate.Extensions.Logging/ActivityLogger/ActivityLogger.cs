@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
@@ -21,9 +22,17 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "v1";
         }
 
-        public void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType,
-            AdditionalData additionalData, string message, params object[] messageData)
+        public void LogActivity<TActivityEnum>(
+            IActivityKeySet keySet, 
+            TActivityEnum actionType,
+            AdditionalData? additionalData, 
+            string message, 
+            params object[] messageData)
         {
+            if (actionType == null)
+            {
+                throw new ArgumentNullException(nameof(actionType), "actionType must be set");
+            }
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),

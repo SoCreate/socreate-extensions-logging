@@ -12,9 +12,9 @@ namespace SoCreate.Extensions.Logging
     {
         public const string LogTypeKey = "LogType";
         private readonly IConfiguration _configuration;
-        private readonly IHostingEnvironment _env;
+        private readonly IHostEnvironment _env;
 
-        public ActivityLoggerLogConfigurationAdapter(IConfiguration configuration, IHostingEnvironment environment)
+        public ActivityLoggerLogConfigurationAdapter(IConfiguration configuration, IHostEnvironment environment)
         {
             _configuration = configuration;
             _env = environment;

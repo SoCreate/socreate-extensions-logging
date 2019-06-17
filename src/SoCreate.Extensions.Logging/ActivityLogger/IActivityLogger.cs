@@ -3,11 +3,11 @@
     public interface IActivityLogger
     {
         void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType,
-            AdditionalData additionalData, string message,
+            AdditionalData? additionalData, string message,
             params object[] messageData);
     }
-    
-    public interface IActivityLogger<out TSourceContext>: IActivityLogger
+
+    public interface IActivityLogger<out TSourceContext> : IActivityLogger
     {
     }
 }

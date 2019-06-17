@@ -38,13 +38,13 @@ namespace ActivityLogger
                         $"appsettings.{Environment.GetEnvironmentVariable("App_Environment") ?? "Production"}.json",
                         true
                     ))
-                .ConfigureLogging(builder =>
-                    builder.AddServiceLogging(new LoggerOptions
+                .ConfigureLogging((hostingContext, builder) =>
+                    builder.AddServiceLogging(hostingContext.Configuration, new LoggerOptions
                     {
                         UseActivityLogger = true,
                         UseApplicationInsights = false
                     }))
                 .Build();
-        
+
     }
 }
