@@ -8,13 +8,13 @@ using SoCreate.Extensions.Logging.ActivityLogger;
 
 namespace SoCreate.Extensions.Logging
 {
-    class ActivityLoggerLogConfigurationAdapter
+    class CosmosActivityLoggerLogConfigurationAdapter
     {
         public const string LogTypeKey = "LogType";
         private readonly IConfiguration _configuration;
         private readonly IHostEnvironment _env;
 
-        public ActivityLoggerLogConfigurationAdapter(IConfiguration configuration, IHostEnvironment environment)
+        public CosmosActivityLoggerLogConfigurationAdapter(IConfiguration configuration, IHostEnvironment environment)
         {
             _configuration = configuration;
             _env = environment;

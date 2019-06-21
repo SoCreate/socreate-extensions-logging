@@ -6,12 +6,12 @@ namespace SoCreate.Extensions.Logging
     {
         public LoggerOptions()
         {
-            UseApplicationInsights = true;
-            UseActivityLogger = false;
+            SendLogDataToApplicationInsights = true;
+            SendLogActivityDataToCosmos = false;
         }
 
-        public bool UseApplicationInsights { get; set; }
-        public bool UseActivityLogger { get; set; }
+        public bool SendLogDataToApplicationInsights { get; set; }
+        public bool SendLogActivityDataToCosmos { get; set; }
         public Func<int>? GetUserId { get; set; }
     }
 }
