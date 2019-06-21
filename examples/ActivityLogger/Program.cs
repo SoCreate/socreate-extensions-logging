@@ -31,7 +31,7 @@ namespace ActivityLogger
 
         private static IHost CreateHost() =>
             new HostBuilder()
-                .UseEnvironment(Environment.GetEnvironmentVariable("App_Environment"))
+                .UseEnvironment(Environment.GetEnvironmentVariable("App_Environment") ?? "Production")
                 .ConfigureAppConfiguration(builder => builder
                     .AddJsonFile("appsettings.json", false, true)
                     .AddJsonFile(
@@ -41,8 +41,8 @@ namespace ActivityLogger
                 .ConfigureLogging((hostingContext, builder) =>
                     builder.AddServiceLogging(hostingContext.Configuration, new LoggerOptions
                     {
-                        UseActivityLogger = true,
-                        UseApplicationInsights = false
+                        LogActivityDataToCosmos = false,
+                        LogTelemetryDataToApplicationInsights = false
                     }))
                 .Build();
 

@@ -22,24 +22,18 @@ namespace SoCreate.Extensions.Logging
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
 
-            if (options.UseActivityLogger)
-            {
-                builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
-            }
+            builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
 
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
             builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
             builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services));
-            builder.Services.AddTransient<ActivityLoggerLogConfigurationAdapter>();
+            builder.Services.AddTransient<CosmosActivityLoggerLogConfigurationAdapter>();
 
-            if (options.UseApplicationInsights)
-            {
-                builder.Services.AddApplicationInsightsTelemetry();
-                builder.Services.AddApplicationInsightsTelemetryProcessor<RemoveDuplicateExceptionLogsProcessor>();
-                builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
-                builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
-            }
+            builder.Services.AddApplicationInsightsTelemetry();
+            builder.Services.AddApplicationInsightsTelemetryProcessor<RemoveDuplicateExceptionLogsProcessor>();
+            builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
+            builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
             builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
             builder.AddFilter<LoggerProvider>(null, LogLevel.Trace);
@@ -56,15 +50,15 @@ namespace SoCreate.Extensions.Logging
         {
             var loggerConfig = serviceProvider.GetRequiredService<LoggerConfiguration>();
 
-            if (options.UseApplicationInsights)
+            if (options.LogTelemetryDataToApplicationInsights)
             {
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig, options);
             }
 
-            if (options.UseActivityLogger)
+            if (options.LogActivityDataToCosmos)
             {
-                serviceProvider.GetRequiredService<ActivityLoggerLogConfigurationAdapter>()
+                serviceProvider.GetRequiredService<CosmosActivityLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig);
             }
 

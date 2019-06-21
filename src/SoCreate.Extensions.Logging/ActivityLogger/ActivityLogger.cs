@@ -39,7 +39,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("KeySet", keySet.ToDictionary()),
                 new PropertyEnricher("ActionType", actionType.ToString(), true),
-                new PropertyEnricher(ActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
+                new PropertyEnricher(CosmosActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
             if (additionalData != null)
             {
