@@ -50,13 +50,13 @@ namespace SoCreate.Extensions.Logging
         {
             var loggerConfig = serviceProvider.GetRequiredService<LoggerConfiguration>();
 
-            if (options.LogTelemetryDataToApplicationInsights)
+            if (options.SendLogDataToApplicationInsights)
             {
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig, options);
             }
 
-            if (options.LogActivityDataToCosmos)
+            if (options.SendLogActivityDataToCosmos)
             {
                 serviceProvider.GetRequiredService<CosmosActivityLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig);

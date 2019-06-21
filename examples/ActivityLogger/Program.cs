@@ -41,8 +41,8 @@ namespace ActivityLogger
                 .ConfigureLogging((hostingContext, builder) =>
                     builder.AddServiceLogging(hostingContext.Configuration, new LoggerOptions
                     {
-                        LogActivityDataToCosmos = false,
-                        LogTelemetryDataToApplicationInsights = false
+                        SendLogActivityDataToCosmos = false,
+                        SendLogDataToApplicationInsights = false
                     }))
                 .Build();
 
