@@ -8,17 +8,36 @@ using System;
 using System.Fabric;
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.Configuration;
-using SoCreate.Extensions.Logging.ApplicationInsightsLogger;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
 namespace SoCreate.Extensions.Logging
 {
     public static class LoggingBuilderExtensions
     {
-        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions? options = null)
+        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, HostBuilderContext hostBuilderContext, LoggerOptions? options = null)
+        {
+            var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
+            if (isWebApp)
+            {
+                builder.Services.AddApplicationInsightsTelemetry();
+            }
+            return builder.AddServiceLogging(hostBuilderContext.Configuration, options);
+        }
+
+        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, WebHostBuilderContext webHostBuilderContext, LoggerOptions? options = null)
+        {
+            builder.Services.AddApplicationInsightsTelemetry();
+            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options);
+        }
+
+        private static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions? options = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            options = options ?? new LoggerOptions();
+            options ??= new LoggerOptions();
+
+            builder.ClearProviders();
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
 
@@ -27,16 +46,13 @@ namespace SoCreate.Extensions.Logging
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
             builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
-            builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services));
+            builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
             builder.Services.AddTransient<CosmosActivityLoggerLogConfigurationAdapter>();
-
-            builder.Services.AddApplicationInsightsTelemetry();
-            builder.Services.AddApplicationInsightsTelemetryProcessor<RemoveDuplicateExceptionLogsProcessor>();
+            
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
             builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
-            builder.AddFilter<LoggerProvider>(null, LogLevel.Trace);
 
             return builder;
         }
@@ -65,12 +81,12 @@ namespace SoCreate.Extensions.Logging
             return new LoggerProvider(loggerConfig.CreateLogger());
         }
 
-        private static LoggerConfiguration GetLoggerConfiguration(IServiceProvider serviceProvider)
+        private static LoggerConfiguration GetLoggerConfiguration(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             return new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
                 .MinimumLevel.ControlledBy(serviceProvider.GetRequiredService<LoggingLevelSwitch>())
-                .Enrich.FromLogContext()
-                .WriteTo.Console();
+                .Enrich.FromLogContext();
         }
     }
 }

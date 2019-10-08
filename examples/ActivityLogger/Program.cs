@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,24 +28,21 @@ namespace ActivityLogger
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData(51, "This is the extension method");
+                host.Run();
             }
         }
 
         private static IHost CreateHost() =>
-            new HostBuilder()
+            Host.CreateDefaultBuilder()
                 .UseEnvironment(Environment.GetEnvironmentVariable("App_Environment") ?? "Production")
-                .ConfigureAppConfiguration(builder => builder
-                    .AddJsonFile("appsettings.json", false, true)
-                    .AddJsonFile(
-                        $"appsettings.{Environment.GetEnvironmentVariable("App_Environment") ?? "Production"}.json",
-                        true
-                    ))
-                .ConfigureLogging((hostingContext, builder) =>
-                    builder.AddServiceLogging(hostingContext.Configuration, new LoggerOptions
+                .ConfigureWebHostDefaults(config => {
+                    config.ConfigureLogging((hostingContext, builder) =>
+                    builder.AddServiceLogging(hostingContext, new LoggerOptions
                     {
                         SendLogActivityDataToCosmos = false,
-                        SendLogDataToApplicationInsights = false
-                    }))
+                        SendLogDataToApplicationInsights = true
+                    }));
+                    config.UseStartup<Startup>(); })
                 .Build();
 
     }

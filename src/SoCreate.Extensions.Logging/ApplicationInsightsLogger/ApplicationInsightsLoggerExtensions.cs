@@ -1,70 +1,59 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.DataContracts;
 using Serilog;
 using Serilog.Events;
-using Serilog.ExtensionMethods;
+using Serilog.Sinks.ApplicationInsights.Sinks.ApplicationInsights.TelemetryConverters;
 
 namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
 {
     static class ApplicationInsightsLoggerExtensions
     {
-        static Func<int> GetUserIdFromContext { get; set; }
-
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
             string instrumentationKey, Func<int>? getUserId = null)
         {
-            if (getUserId != null)
-            {
-                GetUserIdFromContext = getUserId;
-            }
-
-            // If there is not a key, just use active
-            var telemetryConfig = string.IsNullOrEmpty(instrumentationKey)
-                ? TelemetryConfiguration.Active
-                : new TelemetryConfiguration(instrumentationKey);
-
-            config.WriteTo.ApplicationInsights(telemetryConfig, ConvertLogEventsToTelemetry);
+            config.WriteTo.ApplicationInsights(instrumentationKey, new CustomTelemetryConvertor(getUserId));
             return config;
         }
+    }
 
-        private static ITelemetry ConvertLogEventsToTelemetry(LogEvent logEvent, IFormatProvider formatProvider)
+    class CustomTelemetryConvertor : TraceTelemetryConverter
+    {
+        private readonly Func<int>? _getUserIdFromContext;
+
+        public CustomTelemetryConvertor(Func<int>? GetUserIdFromContext)
         {
-            var telemetry = GetTelemetry(logEvent, formatProvider);
-
-            // Add Operation Id
-            if (Activity.Current?.RootId != null)
-            {
-                telemetry.Context.Operation.Id = Activity.Current?.RootId;
-            }
-
-            if (GetUserIdFromContext != null)
-            {
-                telemetry.Context.User.Id = GetUserIdFromContext().ToString();
-            }
-
-            return telemetry;
+            _getUserIdFromContext = GetUserIdFromContext;
         }
 
-        private static ITelemetry GetTelemetry(LogEvent logEvent, IFormatProvider formatProvider)
+        public override IEnumerable<ITelemetry> Convert(LogEvent logEvent, IFormatProvider formatProvider)
         {
-            if (logEvent.Exception != null)
+            foreach (ITelemetry telemetry in base.Convert(logEvent, formatProvider))
             {
-                // Exception telemetry
-                return logEvent.ToDefaultExceptionTelemetry(
-                    formatProvider,
-                    includeLogLevelAsProperty: false,
-                    includeRenderedMessageAsProperty: false,
-                    includeMessageTemplateAsProperty: false);
-            }
+                // Add Operation Id
+                if (Activity.Current?.RootId != null)
+                {
+                    telemetry.Context.Operation.Id = Activity.Current?.RootId;
+                }
 
-            // Default telemetry
-            return logEvent.ToDefaultTraceTelemetry(
-                formatProvider,
-                includeLogLevelAsProperty: false,
-                includeRenderedMessageAsProperty: false,
-                includeMessageTemplateAsProperty: false);
+                if (_getUserIdFromContext != null)
+                {
+                    telemetry.Context.User.Id = _getUserIdFromContext().ToString();
+                }
+
+                yield return telemetry;
+            }
+        }
+
+
+        public override void ForwardPropertiesToTelemetryProperties(LogEvent logEvent, ISupportProperties telemetryProperties, IFormatProvider formatProvider)
+        {
+            base.ForwardPropertiesToTelemetryProperties(logEvent, telemetryProperties, formatProvider,
+                includeLogLevel: true,
+                includeRenderedMessage: true,
+                includeMessageTemplate: false);
         }
     }
 }
