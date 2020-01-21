@@ -34,40 +34,46 @@ short message that is shown to the customer as well as extra data that is used f
 
 Here is an example of the SQL table that is generated:
 ```sql
-CREATE TABLE [dbo].[ActivityLog] (
+CREATE TABLE [Logging].[Activity] (
     [Id]              INT            IDENTITY (1, 1) NOT NULL,
-    [Key]             INT            NULL,
-    [KeyType]         NVARCHAR (64)  NULL,
+    [Key]             INT            NOT NULL,
+    [KeyType]         NVARCHAR (64)  NOT NULL,
+    [AccountId]       INT            NULL,
+    [TenantId]        INT            NOT NULL,
     [Message]         NVARCHAR (MAX) NULL,
     [MessageTemplate] NVARCHAR (MAX) NULL,
     [Level]           NVARCHAR (MAX) NULL,
     [TimeStamp]       DATETIME2 (7)  NULL,
     [LogEvent]        NVARCHAR (MAX) NULL,
-    CONSTRAINT [PK_ActivityLog] PRIMARY KEY CLUSTERED ([Id] ASC)
+    [Version]         NVARCHAR (10)  NOT NULL,
+    CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
+
 GO
-CREATE NONCLUSTERED INDEX [IX_ActivityLog_Key_KeyType]
-    ON [dbo].[ActivityLog]([Key] ASC, [KeyType] ASC);
+CREATE NONCLUSTERED INDEX [IX_Activity_Key_KeyType]
+    ON [Logging].[Activity]([Key] ASC, [KeyType] ASC);
 ```
 
 Here is an example of how the data could appear in Sql in the log event column:
 ```json
 {
-    "TimeStamp": "2020-01-21T11:17:19.7613549",
+    "TimeStamp": "2020-01-21T13:55:25.1982078",
     "Level": "Information",
     "Message": "Logging Activity with Message: \"This is more information\"",
     "MessageTemplate": "Logging Activity with Message: {Structure}",
     "Properties": {
         "Structure": "This is more information",
+        "AccountId": 1,
         "AdditionalProperties": {
             "Extra": "Data",
             "MoreExtra": "Data2"
         },
         "LogType": "ActivityLogType",
+        "TenantId": 100,
         "KeyType": "UserId",
         "Key": "1285689392",
-        "Version": "v1",
+        "Version": "1.0.0",
         "SourceContext": "ActivityLogger.ExampleActionType"
     }
 }
@@ -81,12 +87,12 @@ logs. The version is there in case there is a need for a schema change and diffe
 {
   "SqlServer": {
      "ConnectionString" : "",
-     "TableName" : "ActivityLog",
-     "SchemaName" : "dbo"
+     "TableName" : "Activity",
+     "SchemaName" : "Logging"
    },
   "ActivityLogger" : {
     "ActivityLogType" : "ActivityLogType",
-    "ActivityLogVersion" : "v1"
+    "ActivityLogVersion" : "1.0.0"
   }
 }
 ```
