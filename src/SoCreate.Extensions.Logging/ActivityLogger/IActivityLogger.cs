@@ -2,7 +2,7 @@
 {
     public interface IActivityLogger
     {
-        void LogActivity<TActivityEnum>(IActivityKeySet keySet, TActivityEnum actionType,
+        void LogActivity<TActivityEnum>(int key, TActivityEnum keyType,
             AdditionalData? additionalData, string message,
             params object[] messageData);
     }

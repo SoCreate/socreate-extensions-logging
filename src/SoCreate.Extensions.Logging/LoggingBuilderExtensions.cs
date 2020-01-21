@@ -47,8 +47,7 @@ namespace SoCreate.Extensions.Logging
 
             builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
             builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
-            builder.Services.AddTransient<CosmosActivityLoggerLogConfigurationAdapter>();
-            
+            builder.Services.AddTransient<SqlServerLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
@@ -72,9 +71,9 @@ namespace SoCreate.Extensions.Logging
                     .ApplyConfiguration(loggerConfig, options);
             }
 
-            if (options.SendLogActivityDataToCosmos)
+            if (options.SendLogActivityDataToSql)
             {
-                serviceProvider.GetRequiredService<CosmosActivityLoggerLogConfigurationAdapter>()
+                serviceProvider.GetRequiredService<SqlServerLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig);
             }
 

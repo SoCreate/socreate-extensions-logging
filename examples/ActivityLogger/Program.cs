@@ -20,8 +20,8 @@ namespace ActivityLogger
                 var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
                 // use the activity logger directly
                 activityLogger.LogActivity(
-                    new ExampleKeySet { SpecialExampleId = randomId },
-                    ExampleActionType.Default,
+                    randomId,
+                    ExampleActionType.UserId,
                     new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                     "Logging Activity with Message: {Structure}",
                     "This is more information");
@@ -39,8 +39,8 @@ namespace ActivityLogger
                     config.ConfigureLogging((hostingContext, builder) =>
                     builder.AddServiceLogging(hostingContext, new LoggerOptions
                     {
-                        SendLogActivityDataToCosmos = false,
-                        SendLogDataToApplicationInsights = true
+                        SendLogDataToApplicationInsights = true,
+                        SendLogActivityDataToSql = false
                     }));
                     config.UseStartup<Startup>(); })
                 .Build();

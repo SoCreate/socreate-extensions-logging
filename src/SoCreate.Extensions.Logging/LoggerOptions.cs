@@ -7,11 +7,13 @@ namespace SoCreate.Extensions.Logging
         public LoggerOptions()
         {
             SendLogDataToApplicationInsights = true;
-            SendLogActivityDataToCosmos = false;
+            SendLogActivityDataToSql = false;
         }
 
         public bool SendLogDataToApplicationInsights { get; set; }
-        public bool SendLogActivityDataToCosmos { get; set; }
+
+        public bool SendLogActivityDataToSql { get; set; }
+
         public Func<int>? GetUserId { get; set; }
     }
 }

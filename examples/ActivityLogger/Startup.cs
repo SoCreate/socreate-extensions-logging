@@ -27,7 +27,7 @@ namespace ActivityLogger
 
             try
             {
-                throw new Exception("Blow up.");
+                throw new Exception("This is an example of an exception occurring.");
             }
             catch (Exception err)
             {

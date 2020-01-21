@@ -23,23 +23,23 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         }
 
         public void LogActivity<TActivityEnum>(
-            IActivityKeySet keySet, 
-            TActivityEnum actionType,
+            int key, 
+            TActivityEnum keyType,
             AdditionalData? additionalData, 
             string message, 
             params object[] messageData)
         {
-            if (actionType == null)
+            if (keyType == null)
             {
-                throw new ArgumentNullException(nameof(actionType), "actionType must be set");
+                throw new ArgumentNullException(nameof(keyType), "keyType must be set");
             }
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
-                new PropertyEnricher("KeySet", keySet.ToDictionary()),
-                new PropertyEnricher("ActionType", actionType.ToString(), true),
-                new PropertyEnricher(CosmosActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
+                new PropertyEnricher("Key", key.ToString()),
+                new PropertyEnricher("KeyType", keyType.ToString(), true),
+                new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
             if (additionalData != null)
             {
