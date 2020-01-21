@@ -19,12 +19,14 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
             _activityLogType = configuration.GetValue<string>("ActivityLogger:ActivityLogType") ?? "DefaultType";
-            _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "v1";
+            _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "1.0.0";
         }
 
         public void LogActivity<TActivityEnum>(
             int key, 
             TActivityEnum keyType,
+            int? accountId, 
+            int tenantId,
             AdditionalData? additionalData, 
             string message, 
             params object[] messageData)
@@ -39,11 +41,18 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("Key", key.ToString()),
                 new PropertyEnricher("KeyType", keyType.ToString(), true),
+                new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
+            
             if (additionalData != null)
             {
                 properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
+            }
+
+            if (accountId != null)
+            {
+                properties.Add(new PropertyEnricher("AccountId", accountId));
             }
 
             using (LogContext.Push(properties.ToArray()))

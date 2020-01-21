@@ -2,8 +2,13 @@
 {
     public interface IActivityLogger
     {
-        void LogActivity<TActivityEnum>(int key, TActivityEnum keyType,
-            AdditionalData? additionalData, string message,
+        void LogActivity<TActivityEnum>(
+            int key,
+            TActivityEnum keyType,
+            int? accountId,
+            int tenantId,
+            AdditionalData? additionalData,
+            string message,
             params object[] messageData);
     }
 

@@ -22,6 +22,8 @@ namespace ActivityLogger
                 activityLogger.LogActivity(
                     randomId,
                     ExampleActionType.UserId,
+                    1,
+                    100,
                     new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                     "Logging Activity with Message: {Structure}",
                     "This is more information");
