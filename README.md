@@ -85,18 +85,21 @@ logs. The version is there in case there is a need for a schema change and diffe
 
 ```json
 {
-  "SqlServer": {
-     "ConnectionString" : "",
-     "TableName" : "Activity",
-     "SchemaName" : "Logging"
-   },
-  "ActivityLogger" : {
-    "ActivityLogType" : "ActivityLogType",
-    "ActivityLogVersion" : "1.0.0"
-  }
+  "ActivityLogger": {
+      "ActivityLogType": "ActivityLogType",
+      "ActivityLogVersion": "1.0.0",
+      "BatchSize": 50,
+      "SqlServer": {
+        "ConnectionString": "",
+        "TableName": "Activity",
+        "SchemaName": "Logging"
+      }
+   }
 }
 ```
 
+If you are using key store to keep track of the connection string, then you will need to add the connection string 
+with a secret name of `TYPE-Infrastructure-ConnectionString`. 
 
 ### 2. Use the Logger from the DI
 ```c#

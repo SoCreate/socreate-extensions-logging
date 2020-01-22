@@ -10,6 +10,7 @@ using System.Text.Encodings.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace SoCreate.Extensions.Logging
 {
@@ -40,6 +41,8 @@ namespace SoCreate.Extensions.Logging
             builder.ClearProviders();
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
+            
+            builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
 
             builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
 
@@ -64,7 +67,7 @@ namespace SoCreate.Extensions.Logging
         private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, LoggerOptions options)
         {
             var loggerConfig = serviceProvider.GetRequiredService<LoggerConfiguration>();
-
+            
             if (options.SendLogDataToApplicationInsights)
             {
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
@@ -73,8 +76,9 @@ namespace SoCreate.Extensions.Logging
 
             if (options.SendLogActivityDataToSql)
             {
+                var activityLoggerOptions = serviceProvider.GetService<IOptions<ActivityLoggerOptions>>();
                 serviceProvider.GetRequiredService<SqlServerLoggerLogConfigurationAdapter>()
-                    .ApplyConfiguration(loggerConfig);
+                    .ApplyConfiguration(loggerConfig, activityLoggerOptions.Value);
             }
 
             return new LoggerProvider(loggerConfig.CreateLogger());

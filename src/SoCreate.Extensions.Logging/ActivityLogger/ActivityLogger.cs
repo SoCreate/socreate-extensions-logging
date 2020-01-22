@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog.Context;
 using Serilog.Core;
 using Serilog.Core.Enrichers;
@@ -15,26 +16,27 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         private readonly string _activityLogType;
         private readonly string _version;
 
-        public ActivityLogger(ILoggerProvider loggerProvider, IConfiguration configuration)
+        public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions> options)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
-            _activityLogType = configuration.GetValue<string>("ActivityLogger:ActivityLogType") ?? "DefaultType";
-            _version = configuration.GetValue<string>("ActivityLogger:ActivityLogVersion") ?? "1.0.0";
+            _activityLogType = options.Value.ActivityLogType ?? "DefaultType";
+            _version = options.Value.ActivityLogVersion ?? "1.0.0";
         }
 
         public void LogActivity<TActivityEnum>(
-            int key, 
+            int key,
             TActivityEnum keyType,
-            int? accountId, 
+            int? accountId,
             int tenantId,
-            AdditionalData? additionalData, 
-            string message, 
+            AdditionalData? additionalData,
+            string message,
             params object[] messageData)
         {
             if (keyType == null)
             {
                 throw new ArgumentNullException(nameof(keyType), "keyType must be set");
             }
+
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
@@ -44,7 +46,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
-            
+
             if (additionalData != null)
             {
                 properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));

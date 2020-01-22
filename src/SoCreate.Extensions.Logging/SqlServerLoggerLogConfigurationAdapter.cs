@@ -19,13 +19,13 @@ namespace SoCreate.Extensions.Logging
             _configuration = configuration;
         }
 
-        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration)
+        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, ActivityLoggerOptions activityLoggerOptions)
         {
-            var sqlConnectionString = _configuration.GetValue<string>("SqlServer:ConnectionString") ??
+            var sqlConnectionString = activityLoggerOptions.SqlServer.ConnectionString ??
                                       _configuration.GetValue<string>("Infrastructure:ConnectionString");
-            var tableName = _configuration.GetValue<string>("SqlServer:TableName") ?? "Activity";
-            var schemaName = _configuration.GetValue<string>("SqlServer:SchemaName") ?? "Logging";
-            var logType = _configuration.GetValue<string>("ActivityLogger:ActivityLogType");
+            var tableName = activityLoggerOptions.SqlServer.TableName ?? "Activity";
+            var schemaName = activityLoggerOptions.SqlServer.SchemaName ?? "Logging";
+            var logType = activityLoggerOptions.ActivityLogType;
 
             var options = new ColumnOptions();
             options.Store.Remove(StandardColumn.Properties);
@@ -49,8 +49,7 @@ namespace SoCreate.Extensions.Logging
                             tableName: tableName,
                             schemaName: schemaName,
                             columnOptions: options,
-                            autoCreateSqlTable: true,
-                            batchPostingLimit: 1000
+                            batchPostingLimit: activityLoggerOptions.BatchSize ?? 50
                         ));
             }
             catch (Exception exception)
