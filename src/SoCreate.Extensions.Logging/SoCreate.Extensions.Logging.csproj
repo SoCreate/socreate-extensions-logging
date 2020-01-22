@@ -6,7 +6,7 @@
     <Company>SoCreate</Company>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://github.com/SoCreate/socreate-extensions-logging/blob/master/LICENSE</PackageLicenseUrl>
-    <Description>This is an abstraction for setting up logging using serilog, application insights and cosmos db.</Description>
+    <Description>This is an abstraction for setting up logging using serilog, application insights and sql server.</Description>
     <RepositoryUrl>https://github.com/SoCreate/socreate-extensions-logging</RepositoryUrl>
     <PackageTags>Logging</PackageTags>
     <RepositoryType>git</RepositoryType>
@@ -30,7 +30,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="3.0.4" />
-    <PackageReference Include="Serilog.Sinks.AzureDocumentDB" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.3" />
   </ItemGroup>
 </Project>

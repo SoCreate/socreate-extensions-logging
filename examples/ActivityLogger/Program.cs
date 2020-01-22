@@ -1,7 +1,5 @@
 ﻿using System;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SoCreate.Extensions.Logging;
@@ -20,8 +18,10 @@ namespace ActivityLogger
                 var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
                 // use the activity logger directly
                 activityLogger.LogActivity(
-                    new ExampleKeySet { SpecialExampleId = randomId },
-                    ExampleActionType.Default,
+                    randomId,
+                    ExampleActionType.UserId,
+                    1,
+                    100,
                     new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                     "Logging Activity with Message: {Structure}",
                     "This is more information");
@@ -35,15 +35,16 @@ namespace ActivityLogger
         private static IHost CreateHost() =>
             Host.CreateDefaultBuilder()
                 .UseEnvironment(Environment.GetEnvironmentVariable("App_Environment") ?? "Production")
-                .ConfigureWebHostDefaults(config => {
+                .ConfigureWebHostDefaults(config =>
+                {
                     config.ConfigureLogging((hostingContext, builder) =>
-                    builder.AddServiceLogging(hostingContext, new LoggerOptions
-                    {
-                        SendLogActivityDataToCosmos = false,
-                        SendLogDataToApplicationInsights = true
-                    }));
-                    config.UseStartup<Startup>(); })
+                        builder.AddServiceLogging(hostingContext, new LoggerOptions
+                        {
+                            SendLogDataToApplicationInsights = true,
+                            SendLogActivityDataToSql = false
+                        }));
+                    config.UseStartup<Startup>();
+                })
                 .Build();
-
     }
 }

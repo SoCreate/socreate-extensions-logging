@@ -7,7 +7,7 @@ namespace ActivityLogger
     {
         public static void LogSomeData(this IActivityLogger activityLogger, int id, string interesting)
         {
-            activityLogger.LogActivity(new ExampleKeySet {SpecialExampleId = id}, ExampleActionType.Important,
+            activityLogger.LogActivity(id, ExampleActionType.OrderId, 3, 100,
                 new AdditionalData(("Time", DateTime.Now)), "Did you see that interesting thing? {InterestingString}",
                 interesting);
         }

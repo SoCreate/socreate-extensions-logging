@@ -1,6 +1,6 @@
 # SoCreate Logging
 
-This project is used to add both application insights and cosmos db logging through serilog.
+This project is used to add both application insights and SqlServer logging through serilog.
 
 ## Add Application Insights Logging
 Add the instrument key to the appSettings.json.
@@ -11,100 +11,97 @@ Add the instrument key to the appSettings.json.
     }
 }
 ```
-Set the UseApplicationInsights Option to true.
+Set the SendLogDataToApplicationInsights Option to true.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {UseApplicationInsights = true})
+    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {SendLogDataToApplicationInsights = true})
     .Build();
 
 ```
 
 
-## Add Activity Logging (Powered By Cosmos DB)
+## Add Activity Logging (Powered By SqlServer)
 
-> When developing make sure to install and run the Cosmos DB local emulator otherwise this will not work.
-https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator
-
-
-Set the UseActivityLogger Option to true.
+Set the SendLogActivityDataToSql Option to true.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {UseActivityLogger = true})
+    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {SendLogActivityDataToSql = true})
     .Build();
-
 ```
-The Activity logger is powered by Cosmos DB and is used to keep track of user activity. The structured logging has a 
-short message that is shown to the customer as well as extra data that is used for debugging. Here is an example of how
-the data will appear in Cosmos:
+The Activity logger is powered by Sql Server and is used to keep track of user activity. The structured logging has a 
+short message that is shown to the customer as well as extra data that is used for debugging. 
+
+
+Here is an example of the SQL table that is generated:
+```sql
+CREATE TABLE [Logging].[Activity] (
+    [Id]              INT            IDENTITY (1, 1) NOT NULL,
+    [Key]             INT            NOT NULL,
+    [KeyType]         NVARCHAR (64)  NOT NULL,
+    [AccountId]       INT            NULL,
+    [TenantId]        INT            NOT NULL,
+    [Message]         NVARCHAR (MAX) NULL,
+    [MessageTemplate] NVARCHAR (MAX) NULL,
+    [Level]           NVARCHAR (MAX) NULL,
+    [TimeStamp]       DATETIME2 (7)  NULL,
+    [LogEvent]        NVARCHAR (MAX) NULL,
+    [Version]         NVARCHAR (10)  NOT NULL,
+    CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Activity_Key_KeyType]
+    ON [Logging].[Activity]([Key] ASC, [KeyType] ASC);
+```
+
+Here is an example of how the data could appear in Sql in the log event column:
 ```json
 {
-    "EventIdHash": 2837138426,
-    "Timestamp": "2019-04-03 22:06:27.121+00:00",
+    "TimeStamp": "2020-01-21T13:55:25.1982078",
     "Level": "Information",
-    "Message": "Did you see that interesting thing? \"This is the extension method\"",
-    "MessageTemplate": "Did you see that interesting thing? {InterestingString}",
+    "Message": "Logging Activity with Message: \"This is more information\"",
+    "MessageTemplate": "Logging Activity with Message: {Structure}",
     "Properties": {
-        "InterestingString": "This is the extension method",
+        "Structure": "This is more information",
+        "AccountId": 1,
         "AdditionalProperties": {
-            "Time": "2019-04-03T15:06:27.1212753-07:00"
+            "Extra": "Data",
+            "MoreExtra": "Data2"
         },
         "LogType": "ActivityLogType",
-        "ActionType": "Default",
-        "KeySet": {
-            "SpecialExampleId": "1134040416"
-        },
-        "Version": "v1",
+        "TenantId": 100,
+        "KeyType": "UserId",
+        "Key": "1285689392",
+        "Version": "1.0.0",
         "SourceContext": "ActivityLogger.ExampleActionType"
-    },
-    "id": "8242363f-2184-c1ae-8dcc-47919eb1ffb4",
-    "_rid": "Gdd8AOSaENQDAAAAAAAAAA==",
-    "_self": "dbs/Gdd8AA==/colls/Gdd8AOSaENQ=/docs/Gdd8AOSaENQDAAAAAAAAAA==/",
-    "_etag": "\"00000000-0000-0000-ea69-7c005d9a01d4\"",
-    "_attachments": "attachments/",
-    "_ts": 1554329187
+    }
 }
 ```
-
-### 1. Implement the Keyset
-To implement the activity, the IActivityKeySet will need to implemented. This keyset will be used for searching for the logs.
-The Partion Key should be in the KeySet and should be enforced to always be there.
-
-Example:
-```
-public class ExampleKeySet : IActivityKeySet
-{
-    public const string SpecialExampleIdKey = "SpecialExampleId";
-    public const string AnotherExampleIdKey = "AnotherExampleId";
-
-    public int SpecialExampleId { get; set; }
-    public int AnotherExampleId { get; set; }
-}
-```
-
-### 2. Setting Up The Configuration Files
-Add Cosmos DB configurations for the Uri, Key, Database Name and the Collection for the logs.
-Configuration the Activity Logger with the Type (used to differenciate files in the container) and the version of the 
+### 1. Setting Up The Configuration Files
+Add configurations for the connectionString, Tablename and SchemaName
+Configuration the Activity Logger with the Type (used to differentiate files in the container) and the version of the 
 logs. The version is there in case there is a need for a schema change and different data points.
 
 ```json
 {
-  "Azure" : {
-    "CosmosDb" : {
-      "Uri" : "https://localhost:8081",
-      "Key" : "<Key>",
-      "DatabaseName" : "Examples",
-      "CollectionName" : "Logs"
-    }
-  },
-  "ActivityLogger" : {
-    "ActivityLogType" : "ActivityLogType",
-    "ActivityLogVersion" : "v1"
-  }
+  "ActivityLogger": {
+      "ActivityLogType": "ActivityLogType",
+      "ActivityLogVersion": "1.0.0",
+      "BatchSize": 50,
+      "SqlServer": {
+        "ConnectionString": "",
+        "TableName": "Activity",
+        "SchemaName": "Logging"
+      }
+   }
 }
 ```
 
+If you are using key store to keep track of the connection string, then you will need to add the connection string 
+with a secret name of `TYPE-Infrastructure-ConnectionString`. 
 
-### 3. Use the Logger from the DI
+### 2. Use the Logger from the DI
 ```c#
 public class Controller : ControllerBase
 {
@@ -117,7 +114,9 @@ public class Controller : ControllerBase
     public void LogData()
     {
         var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
-        _activityLogger.LogActivity( new ExampleKeySet {SpecialExampleId = randomId}, ExampleActionType.Default,
+        var accountId = 1;
+        var tenantId = 100;
+        _activityLogger.LogActivity( randomId, accountId, tenantId, ExampleActionType.Default,
             new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
             "This is more information");
     }
