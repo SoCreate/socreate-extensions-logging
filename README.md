@@ -38,6 +38,7 @@ CREATE TABLE [Logging].[Activity] (
     [Id]              INT            IDENTITY (1, 1) NOT NULL,
     [Key]             INT            NOT NULL,
     [KeyType]         NVARCHAR (64)  NOT NULL,
+    [ActivityType]    NVARCHAR (256) NOT NULL,
     [AccountId]       INT            NULL,
     [TenantId]        INT            NOT NULL,
     [Message]         NVARCHAR (MAX) NULL,
@@ -58,7 +59,7 @@ CREATE NONCLUSTERED INDEX [IX_Activity_Key_KeyType]
 Here is an example of how the data could appear in Sql in the log event column:
 ```json
 {
-    "TimeStamp": "2020-01-21T13:55:25.1982078",
+    "TimeStamp": "2020-01-22T15:46:27.7267707",
     "Level": "Information",
     "Message": "Logging Activity with Message: \"This is more information\"",
     "MessageTemplate": "Logging Activity with Message: {Structure}",
@@ -71,8 +72,9 @@ Here is an example of how the data could appear in Sql in the log event column:
         },
         "LogType": "ActivityLogType",
         "TenantId": 100,
-        "KeyType": "UserId",
-        "Key": "1285689392",
+        "ActivityType": "Important",
+        "KeyType": "OrderId",
+        "Key": "260105564",
         "Version": "1.0.0",
         "SourceContext": "ActivityLogger.ExampleActionType"
     }
@@ -116,7 +118,7 @@ public class Controller : ControllerBase
         var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
         var accountId = 1;
         var tenantId = 100;
-        _activityLogger.LogActivity( randomId, accountId, tenantId, ExampleActionType.Default,
+        _activityLogger.LogActivity( randomId, ExampleKeyTypeEnum.OrderId, ExampleActionType.AccessOrder, accountId, tenantId,
             new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
             "This is more information");
     }
