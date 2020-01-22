@@ -1,7 +1,5 @@
 ﻿using System;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SoCreate.Extensions.Logging;
@@ -37,15 +35,16 @@ namespace ActivityLogger
         private static IHost CreateHost() =>
             Host.CreateDefaultBuilder()
                 .UseEnvironment(Environment.GetEnvironmentVariable("App_Environment") ?? "Production")
-                .ConfigureWebHostDefaults(config => {
+                .ConfigureWebHostDefaults(config =>
+                {
                     config.ConfigureLogging((hostingContext, builder) =>
-                    builder.AddServiceLogging(hostingContext, new LoggerOptions
-                    {
-                        SendLogDataToApplicationInsights = true,
-                        SendLogActivityDataToSql = false
-                    }));
-                    config.UseStartup<Startup>(); })
+                        builder.AddServiceLogging(hostingContext, new LoggerOptions
+                        {
+                            SendLogDataToApplicationInsights = true,
+                            SendLogActivityDataToSql = false
+                        }));
+                    config.UseStartup<Startup>();
+                })
                 .Build();
-
     }
 }
