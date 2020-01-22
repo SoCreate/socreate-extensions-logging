@@ -2,8 +2,8 @@
 {
     public enum ExampleActionType
     {
-        OrderId,
-        UserId,
-        NoteId
+        Important,
+        Default,
+        Limited
     }
 }

@@ -19,7 +19,8 @@ namespace ActivityLogger
                 // use the activity logger directly
                 activityLogger.LogActivity(
                     randomId,
-                    ExampleActionType.UserId,
+                    ExampleKeyTypeEnum.OrderId,
+                    ExampleActionType.Important,
                     1,
                     100,
                     new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),

@@ -2,9 +2,10 @@
 {
     public interface IActivityLogger
     {
-        void LogActivity<TActivityEnum>(
+        void LogActivity<TKeyType, TActivityEnum>(
             int key,
-            TActivityEnum keyType,
+            TKeyType keyType,
+            TActivityEnum activityEnum,
             int? accountId,
             int tenantId,
             AdditionalData? additionalData,

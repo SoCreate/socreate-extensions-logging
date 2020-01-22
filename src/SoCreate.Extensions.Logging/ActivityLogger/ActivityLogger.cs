@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Context;
@@ -23,9 +22,10 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             _version = options.Value.ActivityLogVersion ?? "1.0.0";
         }
 
-        public void LogActivity<TActivityEnum>(
+        public void LogActivity<TKeyType, TActivityEnum>(
             int key,
-            TActivityEnum keyType,
+            TKeyType keyType,
+            TActivityEnum activityEnum,
             int? accountId,
             int tenantId,
             AdditionalData? additionalData,
@@ -42,7 +42,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("Key", key.ToString()),
-                new PropertyEnricher("KeyType", keyType.ToString(), true),
+                new PropertyEnricher("KeyType", keyType.ToString()),
+                new PropertyEnricher("ActivityType", activityEnum.ToString()),
                 new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
