@@ -114,7 +114,9 @@ public class Controller : ControllerBase
     public void LogData()
     {
         var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
-        _activityLogger.LogActivity( randomId, ExampleActionType.Default,
+        var accountId = 1;
+        var tenantId = 100;
+        _activityLogger.LogActivity( randomId, accountId, tenantId, ExampleActionType.Default,
             new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
             "This is more information");
     }
