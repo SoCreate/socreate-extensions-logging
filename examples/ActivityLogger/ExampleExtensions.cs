@@ -7,8 +7,9 @@ namespace ActivityLogger
     {
         public static void LogSomeData(this IActivityLogger activityLogger, int id, string interesting)
         {
-            activityLogger.LogActivity(id, ExampleKeyTypeEnum.OrderId, ExampleActionType.Important, 3, 100,
-                new AdditionalData(("Time", DateTime.Now)), "Did you see that interesting thing? {InterestingString}",
+            activityLogger.LogActivity(id, ExampleKeyTypeEnum.OrderId, ExampleActionType.Important, null,
+                new AdditionalData(("Time", DateTime.Now)),
+                "Did you see that interesting thing, the account id was retrieved using the function? {InterestingString}",
                 interesting);
         }
     }

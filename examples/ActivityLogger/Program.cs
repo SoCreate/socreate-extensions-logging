@@ -22,7 +22,6 @@ namespace ActivityLogger
                     ExampleKeyTypeEnum.OrderId,
                     ExampleActionType.Important,
                     1,
-                    100,
                     new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                     "Logging Activity with Message: {Structure}",
                     "This is more information");
@@ -40,10 +39,18 @@ namespace ActivityLogger
                 {
                     config.ConfigureLogging((hostingContext, builder) =>
                         builder.AddServiceLogging(hostingContext, new LoggerOptions
-                        {
-                            SendLogDataToApplicationInsights = true,
-                            SendLogActivityDataToSql = false
-                        }));
+                            {
+                                SendLogDataToApplicationInsights = true,
+                                SendLogActivityDataToSql = false
+                            },
+                            new ActivityLoggerFunctionOptions
+                            {
+                                GetTenantId = () => 100,
+                                GetAccountIdFunc = (
+                                    key,
+                                    keyType,
+                                    accountId) => accountId ?? (keyType == ExampleKeyTypeEnum.NoteId.ToString() ? 3 : 4)
+                            }));
                     config.UseStartup<Startup>();
                 })
                 .Build();

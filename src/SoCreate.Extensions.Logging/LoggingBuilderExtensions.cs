@@ -16,23 +16,36 @@ namespace SoCreate.Extensions.Logging
 {
     public static class LoggingBuilderExtensions
     {
-        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, HostBuilderContext hostBuilderContext, LoggerOptions? options = null)
+        public static ILoggingBuilder AddServiceLogging(
+            this ILoggingBuilder builder,
+            HostBuilderContext hostBuilderContext,
+            LoggerOptions? options = null,
+            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
         {
             var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
             if (isWebApp)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
             }
-            return builder.AddServiceLogging(hostBuilderContext.Configuration, options);
+
+            return builder.AddServiceLogging(hostBuilderContext.Configuration, options, activityLoggerFunctionOptions);
         }
 
-        public static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, WebHostBuilderContext webHostBuilderContext, LoggerOptions? options = null)
+        public static ILoggingBuilder AddServiceLogging(
+            this ILoggingBuilder builder,
+            WebHostBuilderContext webHostBuilderContext,
+            LoggerOptions? options = null,
+            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
         {
             builder.Services.AddApplicationInsightsTelemetry();
-            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options);
+            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options, activityLoggerFunctionOptions);
         }
 
-        private static ILoggingBuilder AddServiceLogging(this ILoggingBuilder builder, IConfiguration configuration, LoggerOptions? options = null)
+        private static ILoggingBuilder AddServiceLogging(
+            this ILoggingBuilder builder,
+            IConfiguration configuration,
+            LoggerOptions? options = null,
+            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
@@ -41,10 +54,15 @@ namespace SoCreate.Extensions.Logging
             builder.ClearProviders();
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
-            
+
             builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
 
             builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
+
+            builder.Services.PostConfigure<ActivityLoggerOptions>(activityLoggerOptions =>
+            {
+                activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
+            });
 
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 

@@ -14,12 +14,15 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
+        private readonly ActivityLoggerOptions _options;
 
         public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions> options)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
-            _activityLogType = options.Value.ActivityLogType ?? "DefaultType";
-            _version = options.Value.ActivityLogVersion ?? "1.0.0";
+            _options = options.Value;
+            _activityLogType = _options.ActivityLogType ?? "DefaultType";
+            _version = _options.ActivityLogVersion ?? "1.0.0";
+            
         }
 
         public void LogActivity<TKeyType, TActivityEnum>(
@@ -27,7 +30,6 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             TKeyType keyType,
             TActivityEnum activityEnum,
             int? accountId,
-            int tenantId,
             AdditionalData? additionalData,
             string message,
             params object[] messageData)
@@ -44,7 +46,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("Key", key.ToString()),
                 new PropertyEnricher("KeyType", keyType.ToString()),
                 new PropertyEnricher("ActivityType", activityEnum.ToString()),
-                new PropertyEnricher("TenantId", tenantId),
+                new PropertyEnricher("TenantId", _options.ActivityLoggerFunctionOptions.GetTenantId()),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
 
@@ -53,7 +55,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
             }
 
-            if (accountId != null)
+            var verifiedAccountId = _options.ActivityLoggerFunctionOptions.GetAccountIdFunc(key, keyType.ToString(), accountId);
+            if (verifiedAccountId != null)
             {
                 properties.Add(new PropertyEnricher("AccountId", accountId));
             }

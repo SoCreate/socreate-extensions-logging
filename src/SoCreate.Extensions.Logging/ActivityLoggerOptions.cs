@@ -1,3 +1,5 @@
+using System;
+
 namespace SoCreate.Extensions.Logging
 {
     public class ActivityLoggerOptions
@@ -9,6 +11,16 @@ namespace SoCreate.Extensions.Logging
         public int? BatchSize { get; set; } = null!;
 
         public SqlServerConfiguration SqlServer { get; set; } = null!;
+        
+        public ActivityLoggerFunctionOptions? ActivityLoggerFunctionOptions { get; set; }
+    }
+
+    public class ActivityLoggerFunctionOptions
+    {
+        // KeyValue, KeyType, AccountId? return AccountId
+        public Func<int, string, int?, int?>? GetAccountIdFunc { get; set; }
+
+        public Func<int>? GetTenantId { get; set; }
     }
 
     public class SqlServerConfiguration

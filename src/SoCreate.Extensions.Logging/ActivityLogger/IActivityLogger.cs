@@ -7,7 +7,6 @@
             TKeyType keyType,
             TActivityEnum activityEnum,
             int? accountId,
-            int tenantId,
             AdditionalData? additionalData,
             string message,
             params object[] messageData);
