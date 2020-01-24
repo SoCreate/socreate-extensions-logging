@@ -46,10 +46,8 @@ namespace ActivityLogger
                             new ActivityLoggerFunctionOptions
                             {
                                 GetTenantId = () => 100,
-                                GetAccountIdFunc = (
-                                    key,
-                                    keyType,
-                                    accountId) => accountId ?? (keyType == ExampleKeyTypeEnum.NoteId.ToString() ? 3 : 4)
+                                GetAccountIdFunc = ( key, keyType, accountId) => 
+                                    accountId ?? (Enum.Parse<ExampleKeyTypeEnum>(keyType) == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                             }));
                     config.UseStartup<Startup>();
                 })
