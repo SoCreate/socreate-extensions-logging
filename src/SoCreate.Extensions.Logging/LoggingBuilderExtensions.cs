@@ -55,14 +55,21 @@ namespace SoCreate.Extensions.Logging
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
 
-            builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
-
             builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
 
-            builder.Services.PostConfigure<ActivityLoggerOptions>(activityLoggerOptions =>
+            if (options.SendLogActivityDataToSql)
             {
-                activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
-            });
+                if (activityLoggerFunctionOptions == null)
+                {
+                    throw new Exception("When sending log data to sql, you must fill out the activity logger functions");
+                }
+                
+                builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
+                builder.Services.PostConfigure<ActivityLoggerOptions>(activityLoggerOptions =>
+                {
+                    activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
+                });
+            }
 
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 

@@ -18,9 +18,9 @@ namespace SoCreate.Extensions.Logging
     public class ActivityLoggerFunctionOptions
     {
         // KeyValue, KeyType, AccountId? return AccountId
-        public Func<int, string, int?, int?>? GetAccountIdFunc { get; set; }
+        public Func<int, string, int?, int?> GetAccountIdFunc { get; set; }
 
-        public Func<int>? GetTenantId { get; set; }
+        public Func<int> GetTenantId { get; set; }
     }
 
     public class SqlServerConfiguration

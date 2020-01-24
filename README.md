@@ -22,10 +22,20 @@ var host = new HostBuilder()
 
 ## Add Activity Logging (Powered By SqlServer)
 
-Set the SendLogActivityDataToSql Option to true.
+Set the SendLogActivityDataToSql Option to true. Configure the default functions for getting the tenant and account ids for logging.
+The account id function takes in an nullable account id field and if its null, then it figures out the information based on the key and
+key type.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {SendLogActivityDataToSql = true})
+    .ConfigureLogging(builder => 
+        builder.AddServiceLogging(
+            new LoggerOptions {SendLogActivityDataToSql = true},
+            new ActivityLoggerFunctionOptions
+                {
+                    GetTenantId = () => 100,
+                    GetAccountIdFunc = ( key, keyType, accountId) => 
+                        accountId ?? (Enum.Parse<ExampleKeyTypeEnum>(keyType) == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                })
     .Build();
 ```
 The Activity logger is powered by Sql Server and is used to keep track of user activity. The structured logging has a 
@@ -117,8 +127,7 @@ public class Controller : ControllerBase
     {
         var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
         var accountId = 1;
-        var tenantId = 100;
-        _activityLogger.LogActivity( randomId, ExampleKeyTypeEnum.OrderId, ExampleActionType.AccessOrder, accountId, tenantId,
+        _activityLogger.LogActivity( randomId, ExampleKeyTypeEnum.OrderId, ExampleActionType.AccessOrder, accountId,
             new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
             "This is more information");
     }
