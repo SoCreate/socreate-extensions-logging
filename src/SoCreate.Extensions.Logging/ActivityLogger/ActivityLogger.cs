@@ -58,7 +58,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             var verifiedAccountId = _options.ActivityLoggerFunctionOptions.GetAccountIdFunc(key, keyType.ToString(), accountId);
             if (verifiedAccountId != null)
             {
-                properties.Add(new PropertyEnricher("AccountId", accountId));
+                properties.Add(new PropertyEnricher("AccountId", verifiedAccountId));
             }
 
             using (LogContext.Push(properties.ToArray()))
