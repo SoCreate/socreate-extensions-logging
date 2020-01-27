@@ -4,33 +4,33 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 {
     public static class ActivityLoggerExtensions
     {
-        public static void LogActivity<TKeyType, TActivityEnum>(
+        // Ignoring additional Data
+        public static void LogActivity<TActivityEnum, TKeyType>(
             this IActivityLogger activityLogger,
+            TActivityEnum activityType,
             int key,
             TKeyType keyType,
-            TActivityEnum activityType,
             int? accountId,
-            int tenantId,
             string message,
             params object[] messageData)
         {
             if (activityLogger == null) throw new ArgumentNullException(nameof(activityLogger));
 
-            activityLogger.LogActivity(key, keyType, activityType, accountId, tenantId, null, message, messageData);
+            activityLogger.LogActivity(activityType, key, keyType, accountId, null, message, messageData);
         }
 
-        public static void LogActivity<TActivityEnum>(
+        // Ignoring AccountId and AdditionalData
+        public static void LogActivity<TActivityEnum, TKeyType>(
             this IActivityLogger activityLogger,
-            int key,
-            TActivityEnum keyType,
             TActivityEnum activityType,
-            int tenantId,
+            int key,
+            TKeyType keyType,
             string message,
             params object[] messageData)
         {
             if (activityLogger == null) throw new ArgumentNullException(nameof(activityLogger));
 
-            activityLogger.LogActivity(key, keyType, activityType, null, tenantId, null, message, messageData);
+            activityLogger.LogActivity(activityType, key, keyType, null, null, message, messageData);
         }
     }
 }

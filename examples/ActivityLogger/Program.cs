@@ -17,14 +17,16 @@ namespace ActivityLogger
 
                 var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
                 // use the activity logger directly
-                activityLogger.LogActivity(
+                activityLogger.LogActivity(ExampleActionType.Important,
                     randomId,
                     ExampleKeyTypeEnum.OrderId,
-                    ExampleActionType.Important,
                     1,
-                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
-                    "Logging Activity with Message: {Structure}",
-                    "This is more information");
+                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}", "This is more information");
+
+                activityLogger.LogActivity(ExampleActionType.Important,
+                    randomId,
+                    ExampleKeyTypeEnum.OrderId,
+                    "This is without account {Key} or additional data");
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData(51, "This is the extension method");
@@ -46,7 +48,7 @@ namespace ActivityLogger
                             new ActivityLoggerFunctionOptions
                             {
                                 GetTenantId = () => 100,
-                                GetAccountIdFunc = ( key, keyType, accountId) => 
+                                GetAccountId = ( key, keyType, accountId) => 
                                     accountId ?? (Enum.Parse<ExampleKeyTypeEnum>(keyType) == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                             }));
                     config.UseStartup<Startup>();
