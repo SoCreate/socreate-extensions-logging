@@ -30,11 +30,11 @@ var host = new HostBuilder()
     .ConfigureLogging(builder => 
         builder.AddServiceLogging(
             new LoggerOptions {SendLogActivityDataToSql = true},
-            new ActivityLoggerFunctionOptions
+            new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                 {
                     GetTenantId = () => 100,
-                    GetAccountIdFunc = ( key, keyType, accountId) => 
-                        accountId ?? (Enum.Parse<ExampleKeyTypeEnum>(keyType) == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                    GetAccountIdFunc = ( key, keyType) => 
+                      keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                 })
     .Build();
 ```
@@ -46,7 +46,7 @@ Here is an example of the SQL table that is generated:
 ```sql
 CREATE TABLE [Logging].[Activity] (
     [Id]              INT            IDENTITY (1, 1) NOT NULL,
-    [Key]             INT            NOT NULL,
+    [KeyId]           INT            NOT NULL,
     [KeyType]         NVARCHAR (64)  NOT NULL,
     [ActivityType]    NVARCHAR (256) NOT NULL,
     [AccountId]       INT            NULL,
@@ -63,7 +63,7 @@ CREATE TABLE [Logging].[Activity] (
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Activity_Key_KeyType]
-    ON [Logging].[Activity]([Key] ASC, [KeyType] ASC);
+    ON [Logging].[Activity]([KeyId] ASC, [KeyType] ASC);
 ```
 
 Here is an example of how the data could appear in Sql in the log event column:
@@ -84,7 +84,7 @@ Here is an example of how the data could appear in Sql in the log event column:
         "TenantId": 100,
         "ActivityType": "Important",
         "KeyType": "OrderId",
-        "Key": "260105564",
+        "KeyId": "260105564",
         "Version": "1.0.0",
         "SourceContext": "ActivityLogger.ExampleActionType"
     }
@@ -102,7 +102,7 @@ logs. The version is there in case there is a need for a schema change and diffe
       "ActivityLogVersion": "1.0.0",
       "BatchSize": 50,
       "SqlServer": {
-        "ConnectionString": "",
+        "ConnectionString": "<Fill Out>",
         "TableName": "Activity",
         "SchemaName": "Logging"
       }
