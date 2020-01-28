@@ -19,8 +19,7 @@ namespace SoCreate.Extensions.Logging
         public static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
             HostBuilderContext hostBuilderContext,
-            LoggerOptions? options = null,
-            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
+            LoggerOptions? options = null)
         {
             var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
             if (isWebApp)
@@ -28,14 +27,23 @@ namespace SoCreate.Extensions.Logging
                 builder.Services.AddApplicationInsightsTelemetry();
             }
 
-            return builder.AddServiceLogging(hostBuilderContext.Configuration, options, activityLoggerFunctionOptions);
+            return builder.AddServiceLogging(hostBuilderContext.Configuration, options);
         }
 
         public static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
             WebHostBuilderContext webHostBuilderContext,
+            LoggerOptions? options = null)
+        {
+            builder.Services.AddApplicationInsightsTelemetry();
+            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options);
+        }
+
+        public static ILoggingBuilder AddServiceLogging<TKeyType>(
+            this ILoggingBuilder builder,
+            WebHostBuilderContext webHostBuilderContext,
             LoggerOptions? options = null,
-            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
+            ActivityLoggerFunctionOptions<TKeyType>? activityLoggerFunctionOptions = null)
         {
             builder.Services.AddApplicationInsightsTelemetry();
             return builder.AddServiceLogging(webHostBuilderContext.Configuration, options, activityLoggerFunctionOptions);
@@ -44,8 +52,7 @@ namespace SoCreate.Extensions.Logging
         private static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
             IConfiguration configuration,
-            LoggerOptions? options = null,
-            ActivityLoggerFunctionOptions? activityLoggerFunctionOptions = null)
+            LoggerOptions? options = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
@@ -55,21 +62,9 @@ namespace SoCreate.Extensions.Logging
 
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
 
-            builder.Services.AddSingleton(typeof(IActivityLogger<>), typeof(ActivityLogger<>));
+            builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
 
-            if (options.SendLogActivityDataToSql)
-            {
-                if (activityLoggerFunctionOptions == null)
-                {
-                    throw new Exception("When sending log data to sql, you must fill out the activity logger functions");
-                }
-                
-                builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
-                builder.Services.PostConfigure<ActivityLoggerOptions>(activityLoggerOptions =>
-                {
-                    activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
-                });
-            }
+            builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
 
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
@@ -80,6 +75,24 @@ namespace SoCreate.Extensions.Logging
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
             builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
+
+            return builder;
+        }
+
+        private static ILoggingBuilder AddServiceLogging<TKeyType>(
+            this ILoggingBuilder loggerBuilder,
+            IConfiguration configuration,
+            LoggerOptions? options = null,
+            ActivityLoggerFunctionOptions<TKeyType>? activityLoggerFunctionOptions = null)
+        {
+            var builder = AddServiceLogging(loggerBuilder, configuration, options);
+            if (activityLoggerFunctionOptions != null)
+            {
+                builder.Services.PostConfigure<ActivityLoggerOptions<TKeyType>>(activityLoggerOptions =>
+                {
+                    activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
+                });
+            }
 
             return builder;
         }

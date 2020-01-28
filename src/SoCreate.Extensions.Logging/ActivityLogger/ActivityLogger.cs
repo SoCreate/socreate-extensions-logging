@@ -9,28 +9,27 @@ using ILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    class ActivityLogger<TSourceContext> : IActivityLogger<TSourceContext>
+    class ActivityLogger<TKeyType, TSourceContext> : IActivityLogger<TKeyType, TSourceContext>
     {
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
-        private readonly ActivityLoggerOptions _options;
+        private readonly ActivityLoggerOptions<TKeyType> _options;
 
-        public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions> options)
+        public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions<TKeyType>> options)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
             _options = options.Value;
             _activityLogType = _options.ActivityLogType ?? "DefaultType";
             _version = _options.ActivityLogVersion ?? "1.0.0";
-            
         }
 
-        public void LogActivity<TActivityEnum, TKeyType>(
+        public void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
             int key,
             TKeyType keyType,
             int? accountId,
-            AdditionalData additionalData,
+            AdditionalData? additionalData,
             string message,
             params object[] messageData)
         {
@@ -39,14 +38,21 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 throw new ArgumentNullException(nameof(keyType), "keyType must be set");
             }
 
+            // call to get tenant and account id
+            var tenantId = _options.ActivityLoggerFunctionOptions.GetTenantId();
+            if (accountId == null)
+            {
+                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(key, keyType);
+            }
+
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
-                new PropertyEnricher("Key", key.ToString()),
+                new PropertyEnricher("KeyId", key),
                 new PropertyEnricher("KeyType", keyType.ToString()),
-                new PropertyEnricher("ActivityType", activityEnum.ToString()),
-                new PropertyEnricher("TenantId", _options.ActivityLoggerFunctionOptions.GetTenantId()),
+                new PropertyEnricher("ActivityType", activityEnum!.ToString()),
+                new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
 
@@ -55,10 +61,9 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
             }
 
-            var acctId = _options.ActivityLoggerFunctionOptions.GetAccountId(key, keyType.ToString(), accountId);
-            if (acctId != null)
+            if (accountId != null)
             {
-                properties.Add(new PropertyEnricher("AccountId", acctId));
+                properties.Add(new PropertyEnricher("AccountId", accountId));
             }
 
             using (LogContext.Push(properties.ToArray()))

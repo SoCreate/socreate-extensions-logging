@@ -11,16 +11,19 @@ namespace SoCreate.Extensions.Logging
         public int? BatchSize { get; set; } = null!;
 
         public SqlServerConfiguration SqlServer { get; set; } = null!;
-        
-        public ActivityLoggerFunctionOptions? ActivityLoggerFunctionOptions { get; set; }
+    }
+    
+    public class ActivityLoggerOptions<TKeyType> : ActivityLoggerOptions
+    {
+        public ActivityLoggerFunctionOptions<TKeyType>? ActivityLoggerFunctionOptions { get; set; }
     }
 
-    public class ActivityLoggerFunctionOptions
+    public class ActivityLoggerFunctionOptions<TKeyType>
     {
-        // KeyValue, KeyType, AccountId? return AccountId
-        public Func<int, string, int?, int?> GetAccountId { get; set; }
-
-        public Func<int> GetTenantId { get; set; }
+        // KeyValue, KeyType return AccountId
+        public Func<int, TKeyType, int?>? GetAccountId { get; set; }
+        
+        public Func<int>? GetTenantId { get; set; }
     }
 
     public class SqlServerConfiguration

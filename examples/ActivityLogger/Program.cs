@@ -13,24 +13,27 @@ namespace ActivityLogger
         {
             using (var host = CreateHost())
             {
-                var activityLogger = host.Services.GetService<IActivityLogger<ExampleActionType>>();
+                var activityLogger = host.Services.GetService<IActivityLogger<ExampleKeyTypeEnum, Program>>();
 
                 var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
+
                 // use the activity logger directly
                 activityLogger.LogActivity(ExampleActionType.Important,
                     randomId,
                     ExampleKeyTypeEnum.OrderId,
                     1,
-                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}", "This is more information");
+                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), 
+                    "Logging Activity with Message: {Structure}",
+                    "This is more information");
 
                 activityLogger.LogActivity(ExampleActionType.Important,
                     randomId,
-                    ExampleKeyTypeEnum.OrderId,
-                    "This is without account {Key} or additional data");
+                    ExampleKeyTypeEnum.NoteId,
+                    "This is without account {Key} or additional data", randomId);
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData(51, "This is the extension method");
-                host.Run();
+
             }
         }
 
@@ -45,11 +48,11 @@ namespace ActivityLogger
                                 SendLogDataToApplicationInsights = true,
                                 SendLogActivityDataToSql = false
                             },
-                            new ActivityLoggerFunctionOptions
+                            new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                             {
                                 GetTenantId = () => 100,
-                                GetAccountId = ( key, keyType, accountId) => 
-                                    accountId ?? (Enum.Parse<ExampleKeyTypeEnum>(keyType) == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                                GetAccountId = (key, keyType) =>
+                                    (keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                             }));
                     config.UseStartup<Startup>();
                 })

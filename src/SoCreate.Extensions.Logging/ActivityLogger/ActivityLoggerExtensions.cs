@@ -6,7 +6,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
     {
         // Ignoring additional Data
         public static void LogActivity<TActivityEnum, TKeyType>(
-            this IActivityLogger activityLogger,
+            this IActivityLogger<TKeyType> activityLogger,
             TActivityEnum activityType,
             int key,
             TKeyType keyType,
@@ -21,7 +21,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
         // Ignoring AccountId and AdditionalData
         public static void LogActivity<TActivityEnum, TKeyType>(
-            this IActivityLogger activityLogger,
+            this IActivityLogger<TKeyType> activityLogger,
             TActivityEnum activityType,
             int key,
             TKeyType keyType,

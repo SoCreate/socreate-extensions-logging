@@ -5,7 +5,10 @@ namespace ActivityLogger
 {
     public static class ExampleExtensions
     {
-        public static void LogSomeData(this IActivityLogger activityLogger, int id, string interesting)
+        public static void LogSomeData(
+            this IActivityLogger<ExampleKeyTypeEnum> activityLogger,
+            int id,
+            string interesting)
         {
             activityLogger.LogActivity(
                 ExampleActionType.Important,
