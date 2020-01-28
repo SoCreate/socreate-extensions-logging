@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SoCreate.Extensions.Logging;
 using SoCreate.Extensions.Logging.ActivityLogger;
 
@@ -13,6 +14,9 @@ namespace ActivityLogger
         {
             using (var host = CreateHost())
             {
+                var logger = host.Services.GetService<ILogger<Program>>();
+                logger.LogInformation("Testing sending the application insights logs {extra}", "with more text");
+
                 var activityLogger = host.Services.GetService<IActivityLogger<ExampleKeyTypeEnum, Program>>();
 
                 var randomId = new Random((int)DateTime.Now.ToOADate()).Next();
@@ -22,7 +26,7 @@ namespace ActivityLogger
                     randomId,
                     ExampleKeyTypeEnum.OrderId,
                     1,
-                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), 
+                    new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")),
                     "Logging Activity with Message: {Structure}",
                     "This is more information");
 
@@ -33,7 +37,7 @@ namespace ActivityLogger
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData(51, "This is the extension method");
-
+                host.Run();
             }
         }
 

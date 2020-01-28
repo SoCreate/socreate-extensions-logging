@@ -57,35 +57,35 @@ namespace SoCreate.Extensions.Logging
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
             options ??= new LoggerOptions();
-
             builder.ClearProviders();
 
-            builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
+            if (options.SendLogActivityDataToSql)
+            {
+                throw new Exception("If SendLogActivityDataToSql is true, then ActivityLoggerFunctionOptions are required");
+            }
 
-            builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
-
-            builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
-
-            builder.Services.AddSingleton<LoggingLevelSwitch>();
-
-            builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
-            builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
-            builder.Services.AddTransient<SqlServerLoggerLogConfigurationAdapter>();
-            builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
-            builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
-
-            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
+            builder = builder.BuildServices(configuration, options);
 
             return builder;
         }
 
         private static ILoggingBuilder AddServiceLogging<TKeyType>(
-            this ILoggingBuilder loggerBuilder,
+            this ILoggingBuilder builder,
             IConfiguration configuration,
             LoggerOptions? options = null,
             ActivityLoggerFunctionOptions<TKeyType>? activityLoggerFunctionOptions = null)
         {
-            var builder = AddServiceLogging(loggerBuilder, configuration, options);
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            options ??= new LoggerOptions();
+
+            builder.ClearProviders();
+
+            builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
+            builder.Services.Configure<ActivityLoggerOptions<TKeyType>>(configuration.GetSection("ActivityLogger"));
+
+            builder = builder.BuildServices(configuration, options);
+
+            builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
             if (activityLoggerFunctionOptions != null)
             {
                 builder.Services.PostConfigure<ActivityLoggerOptions<TKeyType>>(activityLoggerOptions =>
@@ -97,15 +97,34 @@ namespace SoCreate.Extensions.Logging
             return builder;
         }
 
+        private static ILoggingBuilder BuildServices(
+            this ILoggingBuilder builder,
+            IConfiguration configuration,
+            LoggerOptions options)
+        {
+            builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
+            builder.Services.AddSingleton<LoggingLevelSwitch>();
+
+            builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
+            builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
+            builder.Services.AddTransient<SqlServerLoggerLogConfigurationAdapter>();
+            builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
+            builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
+
+            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
+            return builder;
+        }
+
         private static Action<ServiceContext> EnrichLoggerWithContext(IServiceProvider serviceProvider)
         {
-            return context => ((LoggerProvider)serviceProvider.GetRequiredService<ILoggerProvider>()).Logger.EnrichLoggerWithContextProperties(context);
+            return context =>
+                ((LoggerProvider)serviceProvider.GetRequiredService<ILoggerProvider>()).Logger.EnrichLoggerWithContextProperties(context);
         }
 
         private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, LoggerOptions options)
         {
             var loggerConfig = serviceProvider.GetRequiredService<LoggerConfiguration>();
-            
+
             if (options.SendLogDataToApplicationInsights)
             {
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
