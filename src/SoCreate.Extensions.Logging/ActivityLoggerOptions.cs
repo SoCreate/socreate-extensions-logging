@@ -15,15 +15,15 @@ namespace SoCreate.Extensions.Logging
     
     public class ActivityLoggerOptions<TKeyType> : ActivityLoggerOptions
     {
-        public ActivityLoggerFunctionOptions<TKeyType>? ActivityLoggerFunctionOptions { get; set; }
+        public ActivityLoggerFunctionOptions<TKeyType> ActivityLoggerFunctionOptions { get; set; } = null!;
     }
 
     public class ActivityLoggerFunctionOptions<TKeyType>
     {
         // KeyValue, KeyType return AccountId
-        public Func<int, TKeyType, int?>? GetAccountId { get; set; }
-        
-        public Func<int>? GetTenantId { get; set; }
+        public Func<int, TKeyType, int?> GetAccountId { get; set; } = null!;
+
+        public Func<int> GetTenantId { get; set; } = null!;
     }
 
     public class SqlServerConfiguration
