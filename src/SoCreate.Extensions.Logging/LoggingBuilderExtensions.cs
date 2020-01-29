@@ -21,13 +21,15 @@ namespace SoCreate.Extensions.Logging
             HostBuilderContext hostBuilderContext,
             LoggerOptions? options = null)
         {
+            options ??= new LoggerOptions();
+            builder.ClearProviders();
             var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
             if (isWebApp)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
             }
 
-            return builder.AddServiceLogging(hostBuilderContext.Configuration, options);
+            return builder.BuildServices(hostBuilderContext.Configuration, options);
         }
 
         public static ILoggingBuilder AddServiceLogging(
@@ -36,63 +38,34 @@ namespace SoCreate.Extensions.Logging
             LoggerOptions? options = null)
         {
             builder.Services.AddApplicationInsightsTelemetry();
-            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options);
+            options ??= new LoggerOptions();
+            builder.ClearProviders();
+            return builder.BuildServices(webHostBuilderContext.Configuration, options);
         }
 
         public static ILoggingBuilder AddServiceLogging<TKeyType>(
             this ILoggingBuilder builder,
             WebHostBuilderContext webHostBuilderContext,
-            LoggerOptions? options = null,
-            ActivityLoggerFunctionOptions<TKeyType>? activityLoggerFunctionOptions = null)
+            LoggerOptions options,
+            ActivityLoggerFunctionOptions<TKeyType> activityLoggerFunctionOptions)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.Services.AddApplicationInsightsTelemetry();
-            return builder.AddServiceLogging(webHostBuilderContext.Configuration, options, activityLoggerFunctionOptions);
-        }
-
-        private static ILoggingBuilder AddServiceLogging(
-            this ILoggingBuilder builder,
-            IConfiguration configuration,
-            LoggerOptions? options = null)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            options ??= new LoggerOptions();
-            builder.ClearProviders();
-
-            if (options.SendLogActivityDataToSql)
-            {
-                throw new Exception("If SendLogActivityDataToSql is true, then ActivityLoggerFunctionOptions are required");
-            }
-
-            builder = builder.BuildServices(configuration, options);
-
-            return builder;
-        }
-
-        private static ILoggingBuilder AddServiceLogging<TKeyType>(
-            this ILoggingBuilder builder,
-            IConfiguration configuration,
-            LoggerOptions? options = null,
-            ActivityLoggerFunctionOptions<TKeyType>? activityLoggerFunctionOptions = null)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            options ??= new LoggerOptions();
+            var configuration = webHostBuilderContext.Configuration;
 
             builder.ClearProviders();
 
             builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
             builder.Services.Configure<ActivityLoggerOptions<TKeyType>>(configuration.GetSection("ActivityLogger"));
+            builder.Services.Configure<ActivityLoggerOptions<TKeyType>>(activityLoggerOptions =>
+            {
+                activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
+            });
 
-            builder = builder.BuildServices(configuration, options);
+            builder = builder.BuildServices(configuration, options, true);
 
             builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
-            if (activityLoggerFunctionOptions != null)
-            {
-                builder.Services.PostConfigure<ActivityLoggerOptions<TKeyType>>(activityLoggerOptions =>
-                {
-                    activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
-                });
-            }
 
             return builder;
         }
@@ -100,12 +73,18 @@ namespace SoCreate.Extensions.Logging
         private static ILoggingBuilder BuildServices(
             this ILoggingBuilder builder,
             IConfiguration configuration,
-            LoggerOptions options)
+            LoggerOptions options,
+            bool allowSendLogActivityDataToSql = false)
         {
+            if (!allowSendLogActivityDataToSql && options.SendLogActivityDataToSql)
+            {
+                throw new Exception("If SendLogActivityDataToSql is true, then ActivityLoggerFunctionOptions are required");
+            }
+
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
-            builder.Services.AddTransient<Action<ServiceContext>>(serviceProvider => EnrichLoggerWithContext(serviceProvider));
+            builder.Services.AddTransient<Action<ServiceContext>>(EnrichLoggerWithContext);
             builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
             builder.Services.AddTransient<SqlServerLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();

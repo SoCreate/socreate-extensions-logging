@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,8 +55,7 @@ namespace ActivityLogger
                             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                             {
                                 GetTenantId = () => 100,
-                                GetAccountId = (key, keyType) =>
-                                    (keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                                GetAccountId = (key, keyType) => (keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                             }));
                     config.UseStartup<Startup>();
                 })
