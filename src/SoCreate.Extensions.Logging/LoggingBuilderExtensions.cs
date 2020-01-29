@@ -57,9 +57,9 @@ namespace SoCreate.Extensions.Logging
             builder.ClearProviders();
 
             builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
-            builder.Services.Configure<ActivityLoggerOptions<TKeyType>>(configuration.GetSection("ActivityLogger"));
             builder.Services.Configure<ActivityLoggerOptions<TKeyType>>(activityLoggerOptions =>
             {
+                configuration.GetSection("ActivityLogger").Bind(activityLoggerOptions);
                 activityLoggerOptions.ActivityLoggerFunctionOptions = activityLoggerFunctionOptions;
             });
 
