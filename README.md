@@ -125,11 +125,11 @@ public class Controller : ControllerBase
     }
     public void LogData()
     {
-        var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
+        var orderId = new Random((int) DateTime.Now.ToOADate()).Next();
         var accountId = 1;
-        _activityLogger.LogActivity( randomId, ExampleKeyTypeEnum.OrderId, ExampleActionType.AccessOrder, accountId,
-            new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
-            "This is more information");
+        _activityLogger.LogActivity(ExampleActionType.AccessOrder, orderId, ExampleKeyTypeEnum.OrderId, accountId,
+            new AdditionalData(("Price", "10.54"), ("ShipDate", "10-21-2019")), "Order was placed by {CustomerName} on {OrderDate}",
+            "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0));
     }
 }
 
