@@ -5,13 +5,13 @@ namespace ActivityLogger
 {
     public static class ExampleExtensions
     {
-        public static void LogSomeData(
-            this IActivityLogger<ExampleKeyTypeEnum> activityLogger,
+        public static void LogSomeData<TContext>(
+            this IActivityLogger<ExampleKeyTypeEnum, TContext> activityLogger,
             int id,
             string interesting)
         {
             activityLogger.LogActivity(
-                ExampleActionType.Important,
+                ExampleActionType.GetOrder,
                 id,
                 ExampleKeyTypeEnum.OrderId,
                 null,
