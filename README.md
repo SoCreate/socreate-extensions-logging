@@ -33,7 +33,7 @@ var host = new HostBuilder()
             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                 {
                     GetTenantId = () => 100,
-                    GetAccountIdFunc = ( key, keyType) => 
+                    GetAccountId = ( key, keyType) => 
                       keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                 })
     .Build();
@@ -46,9 +46,9 @@ Here is an example of the SQL table that is generated:
 ```sql
 CREATE TABLE [Logging].[Activity] (
     [Id]              INT            IDENTITY (1, 1) NOT NULL,
+    [ActivityType]    NVARCHAR (256) NOT NULL,
     [KeyId]           INT            NOT NULL,
     [KeyType]         NVARCHAR (64)  NOT NULL,
-    [ActivityType]    NVARCHAR (256) NOT NULL,
     [AccountId]       INT            NULL,
     [TenantId]        INT            NOT NULL,
     [Message]         NVARCHAR (MAX) NULL,
