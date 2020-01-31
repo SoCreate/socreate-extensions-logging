@@ -1,18 +1,18 @@
 ﻿namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    public interface IActivityLogger
+    public interface IActivityLogger<in TKeyType>
     {
         void LogActivity<TActivityEnum>(
-            int key,
-            TActivityEnum keyType,
+            TActivityEnum activityEnum,
+            TKeyType keyType,
+            int keyId,
             int? accountId,
-            int tenantId,
-            AdditionalData? additionalData,
+            object additionalData,
             string message,
             params object[] messageData);
     }
 
-    public interface IActivityLogger<out TSourceContext> : IActivityLogger
+    public interface IActivityLogger<in TKeyType, out TSourceContext> : IActivityLogger<TKeyType>
     {
     }
 }

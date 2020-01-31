@@ -5,11 +5,18 @@ namespace ActivityLogger
 {
     public static class ExampleExtensions
     {
-        public static void LogSomeData(this IActivityLogger activityLogger, int id, string interesting)
+        public static void LogSomeData<TContext>(
+            this IActivityLogger<ExampleKeyTypeEnum, TContext> activityLogger,
+            int id,
+            string interesting)
         {
-            activityLogger.LogActivity(id, ExampleActionType.OrderId, 3, 100,
-                new AdditionalData(("Time", DateTime.Now)), "Did you see that interesting thing? {InterestingString}",
-                interesting);
+            activityLogger.LogActivity(
+                ExampleActionType.GetOrder,
+                ExampleKeyTypeEnum.OrderId,
+                id,
+                null,
+                null,
+                "Did you see that interesting thing, the account id was retrieved using the function? {InterestingString}", interesting);
         }
     }
 }

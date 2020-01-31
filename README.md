@@ -22,10 +22,20 @@ var host = new HostBuilder()
 
 ## Add Activity Logging (Powered By SqlServer)
 
-Set the SendLogActivityDataToSql Option to true.
+Set the SendLogActivityDataToSql Option to true. Configure the default functions for getting the tenant and account ids for logging.
+The account id function takes in an nullable account id field and if its null, then it figures out the information based on the key and
+key type.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {SendLogActivityDataToSql = true})
+    .ConfigureLogging(builder => 
+        builder.AddServiceLogging(
+            new LoggerOptions {SendLogActivityDataToSql = true},
+            new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
+                {
+                    GetTenantId = () => 100,
+                    GetAccountId = ( keyType, keyId ) => 
+                      keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                })
     .Build();
 ```
 The Activity logger is powered by Sql Server and is used to keep track of user activity. The structured logging has a 
@@ -36,7 +46,8 @@ Here is an example of the SQL table that is generated:
 ```sql
 CREATE TABLE [Logging].[Activity] (
     [Id]              INT            IDENTITY (1, 1) NOT NULL,
-    [Key]             INT            NOT NULL,
+    [ActivityType]    NVARCHAR (256) NOT NULL,
+    [KeyId]           INT            NOT NULL,
     [KeyType]         NVARCHAR (64)  NOT NULL,
     [AccountId]       INT            NULL,
     [TenantId]        INT            NOT NULL,
@@ -52,13 +63,13 @@ CREATE TABLE [Logging].[Activity] (
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Activity_Key_KeyType]
-    ON [Logging].[Activity]([Key] ASC, [KeyType] ASC);
+    ON [Logging].[Activity]([KeyId] ASC, [KeyType] ASC);
 ```
 
 Here is an example of how the data could appear in Sql in the log event column:
 ```json
 {
-    "TimeStamp": "2020-01-21T13:55:25.1982078",
+    "TimeStamp": "2020-01-22T15:46:27.7267707",
     "Level": "Information",
     "Message": "Logging Activity with Message: \"This is more information\"",
     "MessageTemplate": "Logging Activity with Message: {Structure}",
@@ -71,8 +82,9 @@ Here is an example of how the data could appear in Sql in the log event column:
         },
         "LogType": "ActivityLogType",
         "TenantId": 100,
-        "KeyType": "UserId",
-        "Key": "1285689392",
+        "ActivityType": "Important",
+        "KeyType": "OrderId",
+        "KeyId": "260105564",
         "Version": "1.0.0",
         "SourceContext": "ActivityLogger.ExampleActionType"
     }
@@ -90,7 +102,7 @@ logs. The version is there in case there is a need for a schema change and diffe
       "ActivityLogVersion": "1.0.0",
       "BatchSize": 50,
       "SqlServer": {
-        "ConnectionString": "",
+        "ConnectionString": "<Fill Out>",
         "TableName": "Activity",
         "SchemaName": "Logging"
       }
@@ -113,12 +125,17 @@ public class Controller : ControllerBase
     }
     public void LogData()
     {
-        var randomId = new Random((int) DateTime.Now.ToOADate()).Next();
+        var orderId = new Random((int) DateTime.Now.ToOADate()).Next();
         var accountId = 1;
-        var tenantId = 100;
-        _activityLogger.LogActivity( randomId, accountId, tenantId, ExampleActionType.Default,
-            new AdditionalData(("Extra", "Data"), ("MoreExtra", "Data2")), "Logging Activity with Message: {Structure}",
-            "This is more information");
+        _activityLogger.LogActivity(
+             ExampleActionType.GetOrder,
+             ExampleKeyTypeEnum.OrderId,
+             orderId,
+             1,
+             new { Price = "10.54", ShipDate = "10-21-2019" },
+             "Order was placed by {CustomerName} on {OrderDate}",
+             "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0)
+        );
     }
 }
 

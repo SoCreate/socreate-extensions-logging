@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Context;
@@ -10,25 +9,27 @@ using ILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    class ActivityLogger<TSourceContext> : IActivityLogger<TSourceContext>
+    class ActivityLogger<TKeyType, TSourceContext> : IActivityLogger<TKeyType, TSourceContext>
     {
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
+        private readonly ActivityLoggerOptions<TKeyType> _options;
 
-        public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions> options)
+        public ActivityLogger(ILoggerProvider loggerProvider, IOptions<ActivityLoggerOptions<TKeyType>> options)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
-            _activityLogType = options.Value.ActivityLogType ?? "DefaultType";
-            _version = options.Value.ActivityLogVersion ?? "1.0.0";
+            _options = options.Value;
+            _activityLogType = _options.ActivityLogType ?? "DefaultType";
+            _version = _options.ActivityLogVersion ?? "1.0.0";
         }
 
         public void LogActivity<TActivityEnum>(
-            int key,
-            TActivityEnum keyType,
+            TActivityEnum activityEnum,
+            TKeyType keyType,
+            int keyId,
             int? accountId,
-            int tenantId,
-            AdditionalData? additionalData,
+            object additionalData,
             string message,
             params object[] messageData)
         {
@@ -37,19 +38,27 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 throw new ArgumentNullException(nameof(keyType), "keyType must be set");
             }
 
+            // call to get tenant and account id
+            var tenantId = _options.ActivityLoggerFunctionOptions.GetTenantId();
+            if (accountId == null)
+            {
+                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyType, keyId);
+            }
+
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
-                new PropertyEnricher("Key", key.ToString()),
-                new PropertyEnricher("KeyType", keyType.ToString(), true),
+                new PropertyEnricher("KeyId", keyId),
+                new PropertyEnricher("KeyType", keyType.ToString()),
+                new PropertyEnricher("ActivityType", activityEnum!.ToString()),
                 new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
 
             if (additionalData != null)
             {
-                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
+                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData, true));
             }
 
             if (accountId != null)
