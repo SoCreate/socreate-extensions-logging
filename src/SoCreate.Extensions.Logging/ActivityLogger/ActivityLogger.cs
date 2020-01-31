@@ -42,7 +42,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             var tenantId = _options.ActivityLoggerFunctionOptions.GetTenantId();
             if (accountId == null)
             {
-                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyId, keyType);
+                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyType, keyId);
             }
 
             var properties = new List<ILogEventEnricher>

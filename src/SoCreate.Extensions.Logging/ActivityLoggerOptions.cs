@@ -21,7 +21,7 @@ namespace SoCreate.Extensions.Logging
     public class ActivityLoggerFunctionOptions<TKeyType>
     {
         // KeyValue, KeyType return AccountId
-        public Func<int, TKeyType, int?> GetAccountId { get; set; } = null!;
+        public Func<TKeyType, int, int?> GetAccountId { get; set; } = null!;
 
         public Func<int> GetTenantId { get; set; } = null!;
     }

@@ -59,7 +59,7 @@ namespace ActivityLogger
                             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                             {
                                 GetTenantId = () => 100,
-                                GetAccountId = (key, keyType) => (keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
+                                GetAccountId = (keyType, keyId) => (keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                             }));
                     config.UseStartup<Startup>();
                 })

@@ -33,7 +33,7 @@ var host = new HostBuilder()
             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                 {
                     GetTenantId = () => 100,
-                    GetAccountId = ( keyId, keyType) => 
+                    GetAccountId = ( keyType, keyId ) => 
                       keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                 })
     .Build();
