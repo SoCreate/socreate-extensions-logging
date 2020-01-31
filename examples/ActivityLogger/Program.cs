@@ -22,16 +22,22 @@ namespace ActivityLogger
                 var orderId = new Random((int)DateTime.Now.ToOADate()).Next();
 
                 // use the activity logger directly
-                activityLogger.LogActivity(ExampleActionType.GetOrder, orderId, ExampleKeyTypeEnum.OrderId, 1,
-                    new AdditionalData(("Price", "10.54"), ("ShipDate", "10-21-2019")), "Order was placed by {CustomerName} on {OrderDate}",
+                activityLogger.LogActivity(
+                    ExampleActionType.GetOrder,
+                    ExampleKeyTypeEnum.OrderId,
+                    orderId,
+                    1,
+                    new { Price = "10.54", ShipDate = "10-21-2019" },
+                    "Order was placed by {CustomerName} on {OrderDate}",
                     "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0));
 
                 // not sending the account id, but letting the function do the work
                 var noteId = new Random((int)DateTime.Now.ToOADate()).Next();
                 activityLogger.LogActivity(ExampleActionType.GetNote,
-                    noteId,
                     ExampleKeyTypeEnum.NoteId,
-                    "This is without account {Key} or additional data", noteId);
+                    noteId,
+                    null,
+                    null, "This is without account {Key} or additional data", noteId);
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData<Program>(51, "This is the extension method");

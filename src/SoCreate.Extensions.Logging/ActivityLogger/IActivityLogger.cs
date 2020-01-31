@@ -4,10 +4,10 @@
     {
         void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
-            int key,
             TKeyType keyType,
+            int keyId,
             int? accountId,
-            AdditionalData? additionalData,
+            object additionalData,
             string message,
             params object[] messageData);
     }

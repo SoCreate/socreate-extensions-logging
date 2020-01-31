@@ -33,7 +33,7 @@ var host = new HostBuilder()
             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                 {
                     GetTenantId = () => 100,
-                    GetAccountId = ( key, keyType) => 
+                    GetAccountId = ( keyId, keyType) => 
                       keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
                 })
     .Build();
@@ -127,9 +127,15 @@ public class Controller : ControllerBase
     {
         var orderId = new Random((int) DateTime.Now.ToOADate()).Next();
         var accountId = 1;
-        _activityLogger.LogActivity(ExampleActionType.AccessOrder, orderId, ExampleKeyTypeEnum.OrderId, accountId,
-            new AdditionalData(("Price", "10.54"), ("ShipDate", "10-21-2019")), "Order was placed by {CustomerName} on {OrderDate}",
-            "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0));
+        _activityLogger.LogActivity(
+             ExampleActionType.GetOrder,
+             ExampleKeyTypeEnum.OrderId,
+             orderId,
+             1,
+             new { Price = "10.54", ShipDate = "10-21-2019" },
+             "Order was placed by {CustomerName} on {OrderDate}",
+             "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0)
+        );
     }
 }
 

@@ -26,10 +26,10 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
         public void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
-            int key,
             TKeyType keyType,
+            int keyId,
             int? accountId,
-            AdditionalData? additionalData,
+            object additionalData,
             string message,
             params object[] messageData)
         {
@@ -42,14 +42,14 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             var tenantId = _options.ActivityLoggerFunctionOptions.GetTenantId();
             if (accountId == null)
             {
-                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(key, keyType);
+                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyId, keyType);
             }
 
             var properties = new List<ILogEventEnricher>
             {
                 new PropertyEnricher(Constants.SourceContextPropertyName, typeof(TSourceContext)),
                 new PropertyEnricher("Version", _version),
-                new PropertyEnricher("KeyId", key),
+                new PropertyEnricher("KeyId", keyId),
                 new PropertyEnricher("KeyType", keyType.ToString()),
                 new PropertyEnricher("ActivityType", activityEnum!.ToString()),
                 new PropertyEnricher("TenantId", tenantId),
@@ -58,7 +58,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
             if (additionalData != null)
             {
-                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData.Properties, true));
+                properties.Add(new PropertyEnricher("AdditionalProperties", additionalData, true));
             }
 
             if (accountId != null)

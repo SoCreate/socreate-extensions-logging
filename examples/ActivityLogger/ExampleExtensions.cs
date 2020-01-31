@@ -12,11 +12,11 @@ namespace ActivityLogger
         {
             activityLogger.LogActivity(
                 ExampleActionType.GetOrder,
-                id,
                 ExampleKeyTypeEnum.OrderId,
+                id,
                 null,
-                "Did you see that interesting thing, the account id was retrieved using the function? {InterestingString}",
-                interesting);
+                null,
+                "Did you see that interesting thing, the account id was retrieved using the function? {InterestingString}", interesting);
         }
     }
 }
