@@ -50,6 +50,11 @@ namespace SoCreate.Extensions.Logging
             ActivityLoggerFunctionOptions<TKeyType> activityLoggerFunctionOptions)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
+            
+            if (options.GetUserId == null)
+            {
+                throw new Exception("If SendLogActivityDataToSql is true, then Options.GetUserId is required");
+            }
 
             builder.Services.AddApplicationInsightsTelemetry();
             var configuration = webHostBuilderContext.Configuration;
@@ -73,14 +78,15 @@ namespace SoCreate.Extensions.Logging
         private static ILoggingBuilder BuildServices(
             this ILoggingBuilder builder,
             IConfiguration configuration,
-            LoggerOptions options,
+            LoggerOptions loggerOptions,
             bool allowSendLogActivityDataToSql = false)
         {
-            if (!allowSendLogActivityDataToSql && options.SendLogActivityDataToSql)
+            if (!allowSendLogActivityDataToSql && loggerOptions.SendLogActivityDataToSql)
             {
                 throw new Exception("If SendLogActivityDataToSql is true, then ActivityLoggerFunctionOptions are required");
             }
-
+;
+            builder.Services.AddSingleton(loggerOptions);
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
@@ -90,7 +96,7 @@ namespace SoCreate.Extensions.Logging
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
-            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, options));
+            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, loggerOptions));
             return builder;
         }
 

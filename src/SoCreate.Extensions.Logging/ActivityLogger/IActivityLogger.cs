@@ -7,7 +7,14 @@
             TKeyType keyType,
             int keyId,
             int? accountId,
-            object additionalData,
+            object? additionalData,
+            string message,
+            params object[] messageData);
+
+        void LogActivity<TActivityEnum>(
+            TActivityEnum activityEnum,
+            int? accountId,
+            object? additionalData,
             string message,
             params object[] messageData);
     }

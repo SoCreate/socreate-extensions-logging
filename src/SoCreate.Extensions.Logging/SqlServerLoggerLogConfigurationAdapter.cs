@@ -33,11 +33,12 @@ namespace SoCreate.Extensions.Logging
             options.Store.Add(StandardColumn.LogEvent);
             options.AdditionalColumns = new Collection<SqlColumn>
             {
-                new SqlColumn { ColumnName = "KeyId", DataType = SqlDbType.Int, NonClusteredIndex = true },
-                new SqlColumn { ColumnName = "KeyType", DataType = SqlDbType.NVarChar, DataLength = 64 },
                 new SqlColumn { ColumnName = "ActivityType", DataType = SqlDbType.NVarChar, DataLength = 256 },
-                new SqlColumn { ColumnName = "AccountId", DataType = SqlDbType.Int, NonClusteredIndex = true, AllowNull = true},
+                new SqlColumn { ColumnName = "KeyType", DataType = SqlDbType.NVarChar, DataLength = 64, AllowNull = true },
+                new SqlColumn { ColumnName = "KeyId", DataType = SqlDbType.Int, NonClusteredIndex = true, AllowNull = true },
+                new SqlColumn { ColumnName = "AccountId", DataType = SqlDbType.Int, NonClusteredIndex = true, AllowNull = true },
                 new SqlColumn { ColumnName = "TenantId", DataType = SqlDbType.Int, NonClusteredIndex = true },
+                new SqlColumn { ColumnName = "UserId", DataType = SqlDbType.Int, NonClusteredIndex = true },
                 new SqlColumn { ColumnName = "Version", DataType = SqlDbType.NVarChar, DataLength = 10 },
             };
 
