@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,7 +19,7 @@ namespace ActivityLogger
 
                 var activityLogger = host.Services.GetService<IActivityLogger<ExampleKeyTypeEnum, Program>>();
 
-                var orderId = new Random((int)DateTime.Now.ToOADate()).Next();
+                var orderId = new Random(DateTime.Now.Millisecond).Next();
 
                 // use the activity logger directly
                 activityLogger.LogActivity(
@@ -29,15 +29,26 @@ namespace ActivityLogger
                     1,
                     new { Price = "10.54", ShipDate = "10-21-2019" },
                     "Order was placed by {CustomerName} on {OrderDate}",
-                    "Bill Battson", new DateTime(2019, 10, 15, 0, 0, 0));
+                    "Bill Battson", 
+                    new DateTime(2019, 10, 15, 0, 0, 0));
 
                 // not sending the account id, but letting the function do the work
-                var noteId = new Random((int)DateTime.Now.ToOADate()).Next();
-                activityLogger.LogActivity(ExampleActionType.GetNote,
+                var noteId = new Random(DateTime.Now.Millisecond).Next();
+                activityLogger.LogActivity(
+                    ExampleActionType.GetNote,
                     ExampleKeyTypeEnum.NoteId,
                     noteId,
                     null,
-                    null, "This is without account {Key} or additional data", noteId);
+                    null, 
+                    "This is without account {Key} or additional data", 
+                    noteId);
+
+                // dont send the key type or key id
+                activityLogger.LogActivity(
+                    ExampleActionType.GetNote,
+                    1,
+                    null,
+                    "This log does not have a key type, because we attempted to find a note and there was not one");
 
                 // use the activity logger extensions
                 activityLogger.LogSomeData<Program>(51, "This is the extension method");
@@ -54,7 +65,8 @@ namespace ActivityLogger
                         builder.AddServiceLogging(hostingContext, new LoggerOptions
                             {
                                 SendLogDataToApplicationInsights = true,
-                                SendLogActivityDataToSql = false
+                                SendLogActivityDataToSql = false,
+                                GetUserId = () => 1
                             },
                             new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
                             {

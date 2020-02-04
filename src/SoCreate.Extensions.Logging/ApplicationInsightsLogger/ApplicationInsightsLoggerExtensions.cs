@@ -23,9 +23,9 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
     {
         private readonly Func<int>? _getUserIdFromContext;
 
-        public CustomTelemetryConvertor(Func<int>? GetUserIdFromContext)
+        public CustomTelemetryConvertor(Func<int>? getUserIdFromContext)
         {
-            _getUserIdFromContext = GetUserIdFromContext;
+            _getUserIdFromContext = getUserIdFromContext;
         }
 
         public override IEnumerable<ITelemetry> Convert(LogEvent logEvent, IFormatProvider formatProvider)
