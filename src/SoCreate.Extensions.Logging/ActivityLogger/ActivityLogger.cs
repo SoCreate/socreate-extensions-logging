@@ -44,7 +44,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
             if (accountId == null)
             {
-                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyType, (int)keyId);
+                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyType, keyId);
             }
             
             Log(activityEnum, keyType.ToString(), keyId, accountId, additionalData, message, messageData);
