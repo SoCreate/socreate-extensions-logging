@@ -1,4 +1,4 @@
-namespace SoCreate.Extensions.Logging
+namespace SoCreate.Extensions.Logging.Options
 {
     public class LoggingMiddlewareOptions
     {

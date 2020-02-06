@@ -11,10 +11,15 @@ Add the instrument key to the appSettings.json.
     }
 }
 ```
-Set the SendLogDataToApplicationInsights Option to true.
+Set the SendLogDataToApplicationInsights Option to true. You can optionally add the user provider that will set the relevant user id on each log.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => builder.AddServiceLogging(new LoggerOptions {SendLogDataToApplicationInsights = true})
+    .ConfigureLogging((hostingContext, builder) => 
+         builder.AddServiceLogging(
+            new ServiceLoggingConfiguration(hostingContext, new LoggerOptions { SendLogDataToApplicationInsights = true})
+                .WithUserProvider(typeof(UserProvider))
+        );
+)
     .Build();
 
 ```
@@ -22,20 +27,17 @@ var host = new HostBuilder()
 
 ## Add Activity Logging (Powered By SqlServer)
 
-Set the SendLogActivityDataToSql Option to true. Configure the default functions for getting the tenant and account ids for logging.
-The account id function takes in an nullable account id field and if its null, then it figures out the information based on the key and
-key type.
+Set the SendLogActivityDataToSql Option to true. When setting the SendLogActivityDataToSql, you must send in the keytype as well as adding 
+the providers for user, account and tenant. The example project has examples of implemented classes for those interfaces.
 ```c#
 var host = new HostBuilder()
-    .ConfigureLogging(builder => 
-        builder.AddServiceLogging(
-            new LoggerOptions {SendLogActivityDataToSql = true},
-            new ActivityLoggerFunctionOptions<ExampleKeyTypeEnum>
-                {
-                    GetTenantId = () => 100,
-                    GetAccountId = ( keyType, keyId ) => 
-                      keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4)
-                })
+    .ConfigureLogging((hostingContext, builder) => 
+        builder.AddServiceLogging<ExampleKeyTypeEnum>(
+            new ServiceLoggingConfiguration(hostingContext, new LoggerOptions { SendLogActivityDataToSql = true })
+                .WithUserProvider(typeof(UserProvider))
+                .WithAccountProvider<ExampleKeyTypeEnum>(typeof(AccountProvider))
+                .WithTenantProvider(typeof(TenantProvider))
+        );
     .Build();
 ```
 The Activity logger is powered by Sql Server and is used to keep track of user activity. The structured logging has a 
@@ -117,9 +119,9 @@ with a secret name of `TYPE-Infrastructure-ConnectionString`.
 ```c#
 public class Controller : ControllerBase
 {
-    private readonly IActivityLogger<CreditController> _activityLogger;
+    private readonly IActivityLogger<ExampleKeyTypeEnum, Controller> _activityLogger;
     
-    public Controller(IActivityLogger<Controller> activityLogger)
+    public Controller(IActivityLogger<ExampleKeyTypeEnum, Controller> activityLogger)
     {
         _activityLogger = activityLogger;
     }

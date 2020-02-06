@@ -6,15 +6,16 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.ApplicationInsights.Sinks.ApplicationInsights.TelemetryConverters;
+using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 
-namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
+namespace SoCreate.Extensions.Logging.Extensions
 {
     static class ApplicationInsightsLoggerExtensions
     {
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
-            string instrumentationKey, Func<int>? getUserId = null)
+            string instrumentationKey, IUserProvider? userProvider = null)
         {
-            config.WriteTo.ApplicationInsights(instrumentationKey, new CustomTelemetryConvertor(getUserId));
+            config.WriteTo.ApplicationInsights(instrumentationKey, new CustomTelemetryConvertor(userProvider));
             return config;
         }
     }
@@ -23,9 +24,12 @@ namespace SoCreate.Extensions.Logging.ApplicationInsightsLogger
     {
         private readonly Func<int>? _getUserIdFromContext;
 
-        public CustomTelemetryConvertor(Func<int>? getUserIdFromContext)
+        public CustomTelemetryConvertor(IUserProvider? userProvider = null)
         {
-            _getUserIdFromContext = getUserIdFromContext;
+            if (userProvider != null)
+            {
+                _getUserIdFromContext = userProvider.GetUserIdFromRequestContext;
+            }
         }
 
         public override IEnumerable<ITelemetry> Convert(LogEvent logEvent, IFormatProvider formatProvider)

@@ -5,6 +5,9 @@ using Microsoft.Extensions.Options;
 using Serilog.Context;
 using Serilog.Core;
 using Serilog.Core.Enrichers;
+using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
+using SoCreate.Extensions.Logging.LogAdapters;
+using SoCreate.Extensions.Logging.Options;
 using ILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
@@ -14,18 +17,23 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
-        private readonly ActivityLoggerOptions<TKeyType> _options;
-        private readonly LoggerOptions _loggerOptions;
+        private readonly IUserProvider _userProvider;
+        private readonly IAccountProvider<TKeyType> _accountProvider;
+        private readonly ITenantProvider _tenantProvider;
 
-        public ActivityLogger(ILoggerProvider loggerProvider, 
-            IOptions<ActivityLoggerOptions<TKeyType>> options,
-            LoggerOptions loggerOptions)
+        public ActivityLogger(
+            ILoggerProvider loggerProvider,
+            IOptions<ActivityLoggerOptions> activityLoggerOptions,
+            IUserProvider userProvider,
+            IAccountProvider<TKeyType> accountProvider,
+            ITenantProvider tenantProvider)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
-            _options = options.Value;
-            _activityLogType = _options.ActivityLogType ?? "DefaultType";
-            _version = _options.ActivityLogVersion ?? "1.0.0";
-            _loggerOptions = loggerOptions;
+            _activityLogType = activityLoggerOptions.Value.ActivityLogType ?? "DefaultType";
+            _version = activityLoggerOptions.Value.ActivityLogVersion ?? "1.0.0";
+            _userProvider = userProvider;
+            _accountProvider = accountProvider;
+            _tenantProvider = tenantProvider;
         }
 
         public void LogActivity<TActivityEnum>(
@@ -44,9 +52,9 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
             if (accountId == null)
             {
-                accountId = _options.ActivityLoggerFunctionOptions.GetAccountId(keyType, keyId);
+                accountId = _accountProvider.GetAccountIdFromKeyType(keyType, keyId);
             }
-            
+
             Log(activityEnum, keyType.ToString(), keyId, accountId, additionalData, message, messageData);
         }
 
@@ -71,8 +79,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             params object[] messageData)
         {
             // call to get tenant, user id and account id
-            var tenantId = _options.ActivityLoggerFunctionOptions.GetTenantId();
-            var userId = _loggerOptions.GetUserId!();
+            var tenantId = _tenantProvider.GetTenantIdFromRequestContext();
+            var userId = _userProvider.GetUserIdFromRequestContext();
 
             var properties = new List<ILogEventEnricher>
             {
@@ -88,7 +96,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             {
                 properties.Add(new PropertyEnricher("KeyId", keyId));
             }
-            
+
             if (keyType != null)
             {
                 properties.Add(new PropertyEnricher("keyType", keyType));

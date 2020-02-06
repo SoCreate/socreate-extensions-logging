@@ -6,8 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
+using SoCreate.Extensions.Logging.Options;
 
-namespace SoCreate.Extensions.Logging
+namespace SoCreate.Extensions.Logging.LogAdapters
 {
     public class SqlServerLoggerLogConfigurationAdapter
     {

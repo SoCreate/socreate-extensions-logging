@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Core;
 using Serilog.Events;
+using SoCreate.Extensions.Logging.Options;
 
 namespace SoCreate.Extensions.Logging
 {
