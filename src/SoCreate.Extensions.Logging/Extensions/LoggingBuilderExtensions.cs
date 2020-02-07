@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Fabric;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -18,30 +20,23 @@ namespace SoCreate.Extensions.Logging.Extensions
     {
         public static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
-            ServiceLoggingConfiguration serviceLoggingConfiguration)
+            HostBuilderContext hostBuilderContext,
+            Action<ServiceLoggingConfiguration> action)
         {
+            var serviceLoggingConfiguration = new ServiceLoggingConfiguration(hostBuilderContext);
+            action.Invoke(serviceLoggingConfiguration);
             builder.ConfigureServices(serviceLoggingConfiguration);
-            if (serviceLoggingConfiguration.LoggerOptions.SendLogActivityDataToSql)
-            {
-                throw new Exception(
-                    "If SendLogActivityDataToSql is true, then you must used the BuildServiceLogging overload with the key type.");
-            }
-
             return builder;
         }
-
-        public static ILoggingBuilder AddServiceLogging<TKeyType>(
+        
+        public static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
-            ServiceLoggingConfiguration serviceLoggingConfiguration)
+            WebHostBuilderContext webHostBuilderContext,
+            Action<ServiceLoggingConfiguration> action)
         {
+            var serviceLoggingConfiguration = new ServiceLoggingConfiguration(webHostBuilderContext);
+            action.Invoke(serviceLoggingConfiguration);
             builder.ConfigureServices(serviceLoggingConfiguration);
-            if (serviceLoggingConfiguration.LoggerOptions.SendLogActivityDataToSql)
-            {
-                builder.Services.Configure<ActivityLoggerOptions>(serviceLoggingConfiguration.Configuration.GetSection("ActivityLogger"));
-                builder.Services.AddSingleton(typeof(IAccountProvider<TKeyType>), serviceLoggingConfiguration.AccountProvider);
-                builder.Services.AddSingleton(typeof(ITenantProvider), serviceLoggingConfiguration.TenantProvider);
-                builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
-            }
             return builder;
         }
 
@@ -49,22 +44,27 @@ namespace SoCreate.Extensions.Logging.Extensions
             this ILoggingBuilder builder,
             ServiceLoggingConfiguration serviceLoggingConfiguration)
         {
-            ValidateServiceLoggingConfiguration(serviceLoggingConfiguration);
             builder.ClearProviders();
-            if (serviceLoggingConfiguration.AddApplicationInsightsTelemetry)
+            if (serviceLoggingConfiguration.ApplicationInsightsTelemetry)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
             }
 
             var configuration = serviceLoggingConfiguration.Configuration;
-            var loggerOptions = serviceLoggingConfiguration.LoggerOptions;
 
             if (serviceLoggingConfiguration.UserProvider != null)
             {
                 builder.Services.AddSingleton(typeof(IUserProvider), serviceLoggingConfiguration.UserProvider);
             }
+            
+            if (serviceLoggingConfiguration.LogToActivityLogger)
+            {
+                builder.Services.Configure<ActivityLoggerOptions>(serviceLoggingConfiguration.Configuration.GetSection("ActivityLogger"));
+                builder.Services.AddSingleton(serviceLoggingConfiguration.AccountProviderType, serviceLoggingConfiguration.AccountProvider);
+                builder.Services.AddSingleton(typeof(ITenantProvider), serviceLoggingConfiguration.TenantProvider);
+                builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
+            }
 
-            builder.Services.AddSingleton(loggerOptions);
             builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
             builder.Services.AddSingleton<LoggingLevelSwitch>();
 
@@ -74,33 +74,10 @@ namespace SoCreate.Extensions.Logging.Extensions
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
-            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, loggerOptions));
+            builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, serviceLoggingConfiguration));
             return builder;
         }
 
-        private static void ValidateServiceLoggingConfiguration(ServiceLoggingConfiguration serviceLoggingConfiguration)
-        {
-            if (serviceLoggingConfiguration.LoggerOptions.SendLogActivityDataToSql)
-            {
-                if (serviceLoggingConfiguration.UserProvider == null)
-                {
-                    throw new Exception(
-                        "If SendLogActivityDataToSql is true, then the UserProvider on ServiceLoggingConfiguration is required");
-                }
-
-                if (serviceLoggingConfiguration.AccountProvider == null)
-                {
-                    throw new Exception(
-                        "If SendLogActivityDataToSql is true, then the AccountProvider on ServiceLoggingConfiguration is required");
-                }
-
-                if (serviceLoggingConfiguration.TenantProvider == null)
-                {
-                    throw new Exception(
-                        "If SendLogActivityDataToSql is true, then the TenantProvider on ServiceLoggingConfiguration is required");
-                }
-            }
-        }
 
         private static Action<ServiceContext> EnrichLoggerWithContext(IServiceProvider serviceProvider)
         {
@@ -108,18 +85,18 @@ namespace SoCreate.Extensions.Logging.Extensions
                 ((LoggerProvider)serviceProvider.GetRequiredService<ILoggerProvider>()).Logger.EnrichLoggerWithContextProperties(context);
         }
 
-        private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, LoggerOptions options)
+        private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, ServiceLoggingConfiguration configuration)
         {
             var loggerConfig = serviceProvider.GetRequiredService<LoggerConfiguration>();
 
-            if (options.SendLogDataToApplicationInsights)
+            if (configuration.LogToApplicationInsights)
             {
                 var userProvider = serviceProvider.GetService<IUserProvider>();
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig, userProvider);
             }
 
-            if (options.SendLogActivityDataToSql)
+            if (configuration.LogToActivityLogger)
             {
                 var activityLoggerOptions = serviceProvider.GetService<IOptions<ActivityLoggerOptions>>();
                 serviceProvider.GetRequiredService<SqlServerLoggerLogConfigurationAdapter>()

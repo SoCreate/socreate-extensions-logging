@@ -28,7 +28,7 @@ namespace SoCreate.Extensions.Logging.Extensions
         {
             if (userProvider != null)
             {
-                _getUserIdFromContext = userProvider.GetUserIdFromRequestContext;
+                _getUserIdFromContext = userProvider.GetUserId;
             }
         }
 

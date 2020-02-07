@@ -52,7 +52,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
 
             if (accountId == null)
             {
-                accountId = _accountProvider.GetAccountIdFromKeyType(keyType, keyId);
+                accountId = _accountProvider.GetAccountId(keyType, keyId);
             }
 
             Log(activityEnum, keyType.ToString(), keyId, accountId, additionalData, message, messageData);
@@ -79,8 +79,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             params object[] messageData)
         {
             // call to get tenant, user id and account id
-            var tenantId = _tenantProvider.GetTenantIdFromRequestContext();
-            var userId = _userProvider.GetUserIdFromRequestContext();
+            var tenantId = _tenantProvider.GetTenantId();
+            var userId = _userProvider.GetUserId();
 
             var properties = new List<ILogEventEnricher>
             {

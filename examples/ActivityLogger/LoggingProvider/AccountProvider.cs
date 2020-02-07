@@ -4,7 +4,7 @@ namespace ActivityLogger.LoggingProvider
 {
     public class AccountProvider : IAccountProvider<ExampleKeyTypeEnum>
     {
-        public int? GetAccountIdFromKeyType(ExampleKeyTypeEnum keyType, int keyId)
+        public int? GetAccountId(ExampleKeyTypeEnum keyType, int keyId)
         {
             // hardcoded as an example
             return keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4;

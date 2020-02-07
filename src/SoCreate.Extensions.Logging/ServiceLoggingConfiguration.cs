@@ -3,83 +3,111 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
-using SoCreate.Extensions.Logging.Options;
 
 namespace SoCreate.Extensions.Logging
 {
     public class ServiceLoggingConfiguration
     {
-        public LoggerOptions LoggerOptions { get; set; }
+        public bool LogToApplicationInsights { get; private set; } = true;
 
-        public bool AddApplicationInsightsTelemetry { get; set; }
+        public bool LogToActivityLogger { get; private set; } = false;
 
-        public IConfiguration? Configuration { get; set; }
+        public bool ApplicationInsightsTelemetry { get; private set; }
 
-        public Type? UserProvider { get; set; }
+        public IConfiguration? Configuration { get; }
 
-        public Type? TenantProvider { get; set; }
+        public Type? UserProvider { get; private set; }
 
-        public Type? AccountProvider { get; set; }
+        public Type? TenantProvider { get; private set; }
 
-        public ServiceLoggingConfiguration(HostBuilderContext hostBuilderContext, LoggerOptions loggerOptions)
+        public Type? AccountProvider { get; private set; }
+        
+        public Type? AccountProviderType { get; private set; }
+
+        public ServiceLoggingConfiguration(HostBuilderContext hostBuilderContext)
         {
             var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
             if (isWebApp)
             {
-                AddApplicationInsightsTelemetry = true;
+                ApplicationInsightsTelemetry = true;
             }
 
             Configuration = hostBuilderContext.Configuration;
-            LoggerOptions = loggerOptions;
         }
 
-        public ServiceLoggingConfiguration(WebHostBuilderContext webHostBuilderContext, LoggerOptions loggerOptions)
+        public ServiceLoggingConfiguration(WebHostBuilderContext webHostBuilderContext)
         {
-            AddApplicationInsightsTelemetry = true;
+            ApplicationInsightsTelemetry = true;
             Configuration = webHostBuilderContext.Configuration;
-            LoggerOptions = loggerOptions;
         }
 
-        public ServiceLoggingConfiguration WithUserProvider(Type userProvider)
+        public ServiceLoggingConfiguration AddApplicationInsights()
         {
-            if (typeof(IUserProvider).IsAssignableFrom(userProvider))
-            {
-                UserProvider = userProvider;
-            }
-            else
-            {
-                throw new Exception("Type must be a subclass of IUserProvider");
-            }
+            LogToApplicationInsights = true;
+            return this;
+        }
+
+        public ServiceLoggingConfiguration AddApplicationInsights(Action<AppInsightsConfiguration> action)
+        {
+            LogToApplicationInsights = true;
+            var appInsightsConfiguration = new AppInsightsConfiguration();
+            action.Invoke(appInsightsConfiguration);
+            
+            UserProvider = appInsightsConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
 
             return this;
         }
 
-        public ServiceLoggingConfiguration WithAccountProvider<TKeyType>(Type accountProvider)
+        public ServiceLoggingConfiguration AddActivityLogging<TKeyType>(Action<ActivityLoggerConfiguration<TKeyType>> action)
         {
-            if (typeof(IAccountProvider<TKeyType>).IsAssignableFrom(accountProvider))
-            {
-                AccountProvider = accountProvider;
-            }
-            else
-            {
-                throw new Exception("Type must be a subclass of IAccountProvider");
-            }
+            LogToActivityLogger = true;
+            var activityLoggerConfiguration = new ActivityLoggerConfiguration<TKeyType>();
+            action.Invoke(activityLoggerConfiguration);
+            
+            AccountProviderType = typeof(IAccountProvider<TKeyType>);
+            UserProvider = activityLoggerConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
+            AccountProvider = activityLoggerConfiguration.AccountProvider ?? throw new Exception("AccountProvider must be configured");
+            TenantProvider = activityLoggerConfiguration.TenantProvider ?? throw new Exception("TenantProvider must be configured");
 
             return this;
         }
+    }
 
-        public ServiceLoggingConfiguration WithTenantProvider(Type tenantProvider)
+    public class AppInsightsConfiguration
+    {
+        public AppInsightsConfiguration WithUserProvider<TUserProvider>() where TUserProvider : IUserProvider
         {
-            if (tenantProvider.GetInterface(nameof(ITenantProvider)) != null)
-            {
-                TenantProvider = tenantProvider;
-            }
-            else
-            {
-                throw new Exception("Type must be a subclass of ITenantProvider");
-            }
-
+            UserProvider = typeof(TUserProvider);
             return this;
         }
+
+        public Type UserProvider { get; set; } = null!;
+    }
+
+    public class ActivityLoggerConfiguration<TKeyType>
+    {
+        public ActivityLoggerConfiguration<TKeyType> WithUserProvider<TUserProvider>() where TUserProvider : IUserProvider
+        {
+            UserProvider = typeof(TUserProvider);
+            return this;
+        }
+
+        public ActivityLoggerConfiguration<TKeyType> WithTenantProvider<TTenantProvider>() where TTenantProvider : ITenantProvider
+        {
+            TenantProvider = typeof(TTenantProvider);
+            return this;
+        }
+
+        public ActivityLoggerConfiguration<TKeyType> WithAccountProvider<TAccountProvider>() where TAccountProvider : IAccountProvider<TKeyType>
+        {
+            AccountProvider = typeof(TAccountProvider);
+            return this;
+        }
+
+        public Type UserProvider { get; private set; } = null!;
+
+        public Type TenantProvider { get; private set; } = null!;
+
+        public Type AccountProvider { get; private set; } = null!;
     }
 }

@@ -4,7 +4,7 @@ namespace ActivityLogger.LoggingProvider
 {
     public class UserProvider : IUserProvider
     {
-        public int GetUserIdFromRequestContext()
+        public int GetUserId()
         {
             // Hardcoded as an example
             return 1;

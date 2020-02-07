@@ -69,18 +69,19 @@ namespace ActivityLogger
                 {
                     config.ConfigureLogging((hostingContext, builder) =>
                     {
-                        builder.AddServiceLogging<ExampleKeyTypeEnum>(
-                            new ServiceLoggingConfiguration(
-                                    hostingContext,
-                                    new LoggerOptions
-                                    {
-                                        SendLogDataToApplicationInsights = true,
-                                        SendLogActivityDataToSql = true
-                                    })
-                                .WithUserProvider(typeof(UserProvider))
-                                .WithAccountProvider<ExampleKeyTypeEnum>(typeof(AccountProvider))
-                                .WithTenantProvider(typeof(TenantProvider))
-                        );
+                        builder.AddServiceLogging(
+                            hostingContext,
+                            loggingConfig =>
+                            {
+                                loggingConfig
+                                    .AddApplicationInsights(appConfig => appConfig.WithUserProvider<UserProvider>())
+                                    .AddActivityLogging<ExampleKeyTypeEnum>(
+                                        activityConfig =>
+                                            activityConfig
+                                                .WithAccountProvider<AccountProvider>()
+                                                .WithUserProvider<UserProvider>()
+                                                .WithTenantProvider<TenantProvider>());
+                            });
                     });
                     config.UseStartup<Startup>();
                 })
