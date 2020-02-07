@@ -3,7 +3,7 @@ using System.Globalization;
 using Serilog;
 using Serilog.Context;
 
-namespace SoCreate.Extensions.Logging.ServiceFabric
+namespace SoCreate.Extensions.Logging.Extensions
 {
     static class ServiceFabricLoggingExtensions
     {
