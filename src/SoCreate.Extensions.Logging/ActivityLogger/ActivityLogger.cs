@@ -12,7 +12,7 @@ using ILogger = Serilog.ILogger;
 
 namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    class ActivityLogger<TKeyType, TSourceContext> : IActivityLogger<TKeyType, TSourceContext>
+    class ActivityLogger<TKeyType, TSourceContext> : IActivityLogger<TKeyType, TSourceContext> where TKeyType : Enum
     {
         private readonly ILogger _logger;
         private readonly string _activityLogType;

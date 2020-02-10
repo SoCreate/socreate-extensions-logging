@@ -1,6 +1,8 @@
-﻿namespace SoCreate.Extensions.Logging.ActivityLogger
+﻿using System;
+
+namespace SoCreate.Extensions.Logging.ActivityLogger
 {
-    public interface IActivityLogger<in TKeyType>
+    public interface IActivityLogger<in TKeyType> where TKeyType : Enum
     {
         void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
@@ -19,7 +21,7 @@
             params object[] messageData);
     }
 
-    public interface IActivityLogger<in TKeyType, out TSourceContext> : IActivityLogger<TKeyType>
+    public interface IActivityLogger<in TKeyType, out TSourceContext> : IActivityLogger<TKeyType> where TKeyType : Enum
     {
     }
 }
