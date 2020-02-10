@@ -11,6 +11,8 @@ namespace SoCreate.Extensions.Logging
         public bool LogToApplicationInsights { get; private set; } = true;
 
         public bool LogToActivityLogger { get; private set; } = false;
+        
+        public bool RegisterActivityLogger { get; private set; } = false;
 
         public bool ApplicationInsightsTelemetry { get; private set; }
 
@@ -58,9 +60,12 @@ namespace SoCreate.Extensions.Logging
             return this;
         }
 
-        public ServiceLoggingConfiguration AddActivityLogging<TKeyType>(Action<ActivityLoggerConfiguration<TKeyType>> action)
+        public ServiceLoggingConfiguration AddActivityLogging<TKeyType>(
+            Action<ActivityLoggerConfiguration<TKeyType>> action,
+            bool loggingOn = true)
         {
-            LogToActivityLogger = true;
+            LogToActivityLogger = loggingOn;
+            RegisterActivityLogger = true;
             var activityLoggerConfiguration = new ActivityLoggerConfiguration<TKeyType>();
             action.Invoke(activityLoggerConfiguration);
             

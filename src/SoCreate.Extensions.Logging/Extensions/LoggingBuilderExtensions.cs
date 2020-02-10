@@ -57,7 +57,7 @@ namespace SoCreate.Extensions.Logging.Extensions
                 builder.Services.AddSingleton(typeof(IUserProvider), serviceLoggingConfiguration.UserProvider);
             }
             
-            if (serviceLoggingConfiguration.LogToActivityLogger)
+            if (serviceLoggingConfiguration.RegisterActivityLogger)
             {
                 builder.Services.Configure<ActivityLoggerOptions>(serviceLoggingConfiguration.Configuration.GetSection("ActivityLogger"));
                 builder.Services.AddSingleton(serviceLoggingConfiguration.AccountProviderType, serviceLoggingConfiguration.AccountProvider);
