@@ -11,7 +11,7 @@
     <PackageTags>Logging</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Copyright>© SoCreate. All rights reserved.</Copyright>
-    <Version>6.0.2</Version>
+    <Version>6.0.3</Version>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
