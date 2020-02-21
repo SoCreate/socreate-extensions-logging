@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
+using SoCreate.Extensions.Logging.Exceptions;
 using SoCreate.Extensions.Logging.Options;
 
 namespace SoCreate.Extensions.Logging.LogAdapters
@@ -22,11 +23,17 @@ namespace SoCreate.Extensions.Logging.LogAdapters
 
         public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, ActivityLoggerOptions activityLoggerOptions)
         {
-            var sqlConnectionString = activityLoggerOptions.SqlServer.ConnectionString ??
+            var sqlConnectionString = activityLoggerOptions.SqlServer?.ConnectionString ??
                                       _configuration.GetValue<string>("Infrastructure:ConnectionString");
-            var tableName = activityLoggerOptions.SqlServer.TableName ?? "Activity";
-            var schemaName = activityLoggerOptions.SqlServer.SchemaName ?? "Logging";
+            var tableName = activityLoggerOptions.SqlServer?.TableName ?? "Activity";
+            var schemaName = activityLoggerOptions.SqlServer?.SchemaName ?? "Logging";
             var logType = activityLoggerOptions.ActivityLogType;
+
+            if (sqlConnectionString == null)
+            {
+                throw new ActivityLoggerConnectionException(
+                    "The sql connection string is not set. Either set in configuration or setup a secret for TYPE--Infrastructure--ConnectionString.");
+            }
 
             var options = new ColumnOptions();
             options.Store.Remove(StandardColumn.Properties);

@@ -16,7 +16,7 @@ namespace SoCreate.Extensions.Logging
 
         public bool ApplicationInsightsTelemetry { get; private set; }
 
-        public IConfiguration? Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public Type? UserProvider { get; private set; }
 

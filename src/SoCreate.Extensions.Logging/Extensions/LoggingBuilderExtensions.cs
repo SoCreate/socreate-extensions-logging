@@ -59,7 +59,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             
             if (serviceLoggingConfiguration.RegisterActivityLogger)
             {
-                builder.Services.Configure<ActivityLoggerOptions>(serviceLoggingConfiguration.Configuration.GetSection("ActivityLogger"));
+                builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
                 builder.Services.AddSingleton(serviceLoggingConfiguration.AccountProviderType, serviceLoggingConfiguration.AccountProvider);
                 builder.Services.AddSingleton(typeof(ITenantProvider), serviceLoggingConfiguration.TenantProvider);
                 builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
