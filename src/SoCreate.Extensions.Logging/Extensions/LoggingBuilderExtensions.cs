@@ -44,11 +44,12 @@ namespace SoCreate.Extensions.Logging.Extensions
             this ILoggingBuilder builder,
             ServiceLoggingConfiguration serviceLoggingConfiguration)
         {
-            builder.ClearProviders();
             if (serviceLoggingConfiguration.ApplicationInsightsTelemetry)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
             }
+            
+            builder.ClearProviders();
 
             var configuration = serviceLoggingConfiguration.Configuration;
 
