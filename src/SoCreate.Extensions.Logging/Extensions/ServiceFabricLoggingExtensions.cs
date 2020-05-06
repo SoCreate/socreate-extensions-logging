@@ -31,15 +31,15 @@ namespace SoCreate.Extensions.Logging.Extensions
 
         private static class ServiceContextProperties
         {
-            public const string ServiceName = "ServiceName";
-            public const string ServiceTypeName = "ServiceTypeName";
-            public const string PartitionId = "PartitionId";
-            public const string ApplicationName = "ApplicationName";
-            public const string ApplicationTypeName = "ApplicationTypeName";
-            public const string NodeName = "NodeName";
-            public const string InstanceId = "InstanceId";
-            public const string ReplicaId = "ReplicaId";
-            public const string ServicePackageVersion = "ServicePackageVersion";
+            public const string ServiceName = "SF.ServiceName";
+            public const string ServiceTypeName = "SF.ServiceTypeName";
+            public const string PartitionId = "SF.PartitionId";
+            public const string ApplicationName = "SF.ApplicationName";
+            public const string ApplicationTypeName = "SF.ApplicationTypeName";
+            public const string NodeName = "SF.NodeName";
+            public const string InstanceId = "SF.InstanceId";
+            public const string ReplicaId = "SF.ReplicaId";
+            public const string ServicePackageVersion = "SF.ServicePackageVersion";
         }
     }
 }

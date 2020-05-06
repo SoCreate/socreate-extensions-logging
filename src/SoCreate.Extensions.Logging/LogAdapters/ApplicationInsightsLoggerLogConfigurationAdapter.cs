@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Fabric;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 using SoCreate.Extensions.Logging.Extensions;
@@ -15,10 +16,10 @@ namespace SoCreate.Extensions.Logging.LogAdapters
             _configuration = configuration;
         }
 
-        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IUserProvider? userProvider)
+        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IUserProvider? userProvider, ServiceContext? serviceContext)
         {
             var instrumentationKey = _configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-            return loggerConfiguration.WithApplicationInsights(instrumentationKey, userProvider);
+            return loggerConfiguration.WithApplicationInsights(instrumentationKey, userProvider, serviceContext);
         }
     }
 }
