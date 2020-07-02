@@ -93,9 +93,8 @@ namespace SoCreate.Extensions.Logging.Extensions
             if (configuration.LogToApplicationInsights)
             {
                 var userProvider = serviceProvider.GetService<IUserProvider>();
-                var serviceContext = serviceProvider.GetService<StatelessServiceContext>() ?? serviceProvider.GetService<StatefulServiceContext>() as ServiceContext;
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
-                    .ApplyConfiguration(loggerConfig, userProvider, serviceContext);
+                    .ApplyConfiguration(loggerConfig, userProvider);
             }
 
             if (configuration.LogToActivityLogger)

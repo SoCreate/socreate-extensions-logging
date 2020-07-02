@@ -5,7 +5,7 @@ using Serilog.Context;
 
 namespace SoCreate.Extensions.Logging.Extensions
 {
-    static class ServiceFabricLoggingExtensions
+    internal static class ServiceFabricLoggingExtensions
     {
         public static void EnrichLoggerWithContextProperties(this ILogger logger, ServiceContext serviceContext)
         {
@@ -29,7 +29,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             }
         }
 
-        private static class ServiceContextProperties
+        internal static class ServiceContextProperties
         {
             public const string ServiceName = "SF.ServiceName";
             public const string ServiceTypeName = "SF.ServiceTypeName";
