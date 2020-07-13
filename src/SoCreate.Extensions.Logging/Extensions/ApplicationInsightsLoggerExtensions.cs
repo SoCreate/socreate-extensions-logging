@@ -68,5 +68,12 @@ namespace SoCreate.Extensions.Logging.Extensions
                 includeRenderedMessage: false,
                 includeMessageTemplate: false);
         }
+
+        public override ExceptionTelemetry ToExceptionTelemetry(LogEvent logEvent, IFormatProvider formatProvider)
+        {
+            var exceptionTelemetry = base.ToExceptionTelemetry(logEvent, formatProvider);
+            exceptionTelemetry.Properties["LogMessage"] = logEvent.RenderMessage();
+            return exceptionTelemetry;
+        }
     }
 }

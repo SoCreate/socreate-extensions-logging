@@ -58,6 +58,15 @@ namespace ActivityLogger
                     activityLogger.LogSomeData<Program>(51, "This is the extension method");
                 }
 
+                try
+                {
+                    throw new InvalidOperationException("My invalid operation");
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Some Invalid Operation Error Occurred {ErrorLocation}", "Right Here");
+                }
+
                 host.Run();
             }
         }
@@ -74,13 +83,13 @@ namespace ActivityLogger
                             loggingConfig =>
                             {
                                 loggingConfig
-                                    .AddApplicationInsights(appConfig => appConfig.WithUserProvider<UserProvider>())
-                                    .AddActivityLogging<ExampleKeyTypeEnum>(
-                                        activityConfig =>
-                                            activityConfig
-                                                .WithAccountProvider<AccountProvider>()
-                                                .WithUserProvider<UserProvider>()
-                                                .WithTenantProvider<TenantProvider>());
+                                    .AddApplicationInsights(appConfig => appConfig.WithUserProvider<UserProvider>());
+                                // .AddActivityLogging<ExampleKeyTypeEnum>(
+                                //     activityConfig =>
+                                //         activityConfig
+                                //             .WithAccountProvider<AccountProvider>()
+                                //             .WithUserProvider<UserProvider>()
+                                //             .WithTenantProvider<TenantProvider>());
                             });
                     });
                     config.UseStartup<Startup>();
