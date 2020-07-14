@@ -1,4 +1,5 @@
-﻿using System.Fabric;
+﻿using System.Collections.Generic;
+using System.Fabric;
 using System.Globalization;
 using Serilog;
 using Serilog.Context;
@@ -19,16 +20,34 @@ namespace SoCreate.Extensions.Logging.Extensions
 
             if (serviceContext is StatelessServiceContext)
             {
-                LogContext.PushProperty(ServiceContextProperties.InstanceId,
-                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture));
+                LogContext.PushProperty(ServiceContextProperties.InstanceId, $"{serviceContext.ReplicaOrInstanceId}");
             }
             else if (serviceContext is StatefulServiceContext)
             {
-                LogContext.PushProperty(ServiceContextProperties.ReplicaId,
-                    serviceContext.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture));
+                LogContext.PushProperty(ServiceContextProperties.ReplicaId, $"{serviceContext.ReplicaOrInstanceId}");
             }
         }
-
+        
+        public static void AddServiceFabricPropertiesToTelemetry(ServiceContext serviceContext, IDictionary<string, string> contextGlobalProperties)
+        {
+            contextGlobalProperties[ServiceContextProperties.ServiceName] = $"{serviceContext.ServiceName}";
+            contextGlobalProperties[ServiceContextProperties.ServiceTypeName] = serviceContext.ServiceTypeName;
+            contextGlobalProperties[ServiceContextProperties.PartitionId] = $"{serviceContext.PartitionId}";
+            contextGlobalProperties[ServiceContextProperties.NodeName] = serviceContext.NodeContext.NodeName;
+            contextGlobalProperties[ServiceContextProperties.ApplicationName] = serviceContext.CodePackageActivationContext.ApplicationName;
+            contextGlobalProperties[ServiceContextProperties.ApplicationTypeName] = serviceContext.CodePackageActivationContext.ApplicationTypeName;
+            contextGlobalProperties[ServiceContextProperties.ServicePackageVersion] = serviceContext.CodePackageActivationContext.CodePackageVersion;
+            
+            if (serviceContext is StatelessServiceContext)
+            {
+                contextGlobalProperties[ServiceContextProperties.InstanceId] = $"{serviceContext.ReplicaOrInstanceId}";
+            }
+            else if (serviceContext is StatefulServiceContext)
+            {
+                contextGlobalProperties[ServiceContextProperties.ReplicaId] = $"{serviceContext.ReplicaOrInstanceId}";
+            }
+        }
+        
         internal static class ServiceContextProperties
         {
             public const string ServiceName = "SF.ServiceName";
