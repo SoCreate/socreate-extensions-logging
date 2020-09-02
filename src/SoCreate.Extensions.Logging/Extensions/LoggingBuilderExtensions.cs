@@ -52,6 +52,9 @@ namespace SoCreate.Extensions.Logging.Extensions
             builder.ClearProviders();
 
             var configuration = serviceLoggingConfiguration.Configuration;
+            
+            // Add the log level configuration
+            builder.AddConfiguration(configuration.GetSection("Logging"));
 
             if (serviceLoggingConfiguration.UserProvider != null)
             {

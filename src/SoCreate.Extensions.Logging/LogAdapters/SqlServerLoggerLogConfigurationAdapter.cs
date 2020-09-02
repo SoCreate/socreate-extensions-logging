@@ -23,13 +23,18 @@ namespace SoCreate.Extensions.Logging.LogAdapters
 
         public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, ActivityLoggerOptions activityLoggerOptions)
         {
-            var sqlConnectionString = activityLoggerOptions.SqlServer?.ConnectionString ??
-                                      _configuration.GetValue<string>("Infrastructure:ConnectionString");
-            var tableName = activityLoggerOptions.SqlServer?.TableName ?? "Activity";
-            var schemaName = activityLoggerOptions.SqlServer?.SchemaName ?? "Logging";
+            var sqlConnectionString = string.IsNullOrEmpty(activityLoggerOptions.SqlServer?.ConnectionString)
+                ? _configuration.GetValue<string>("Infrastructure:ConnectionString")
+                : activityLoggerOptions.SqlServer?.ConnectionString;
+            var tableName = string.IsNullOrEmpty(activityLoggerOptions.SqlServer?.TableName)
+                ? "Activity"
+                : activityLoggerOptions.SqlServer?.TableName;
+            var schemaName = string.IsNullOrEmpty(activityLoggerOptions.SqlServer?.SchemaName)
+                ? "Logging"
+                : activityLoggerOptions.SqlServer?.SchemaName;
             var logType = activityLoggerOptions.ActivityLogType;
 
-            if (sqlConnectionString == null)
+            if (sqlConnectionString == string.Empty)
             {
                 throw new ActivityLoggerConnectionException(
                     "The sql connection string is not set. Either set in configuration or setup a secret for TYPE--Infrastructure--ConnectionString.");
