@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SoCreate.Extensions.Logging;
 using SoCreate.Extensions.Logging.ActivityLogger;
 using SoCreate.Extensions.Logging.Extensions;
-using SoCreate.Extensions.Logging.Options;
 
 namespace ActivityLogger
 {

@@ -11,7 +11,7 @@
     <PackageTags>Logging</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Copyright>© SoCreate. All rights reserved.</Copyright>
-    <Version>6.3.0</Version>
+    <Version>6.3.1</Version>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
     <PackageReference Include="Microsoft.ServiceFabric.Data.Extensions" Version="4.0.457" />
     <PackageReference Include="Serilog" Version="2.9.0" />
