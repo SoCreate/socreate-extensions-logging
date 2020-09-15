@@ -66,7 +66,8 @@ namespace SoCreate.Extensions.Logging.LogAdapters
                 };
 
                 return loggerConfiguration.AuditTo.Logger(cc =>
-                    cc.Filter.ByIncludingOnly(WithProperty(LogTypeKey, logType))
+                      cc.Filter.ByIncludingOnly(WithProperty(LogTypeKey, logType))
+                        .Filter.ByIncludingOnly(le => le.Level == LogEventLevel.Information)
                         .AuditTo.MSSqlServer(sqlConnectionString, sinkOptions, columnOptions: columnOptions));
             }
             catch (Exception exception)
