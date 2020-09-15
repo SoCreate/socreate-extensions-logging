@@ -6,17 +6,18 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
+using Serilog.Sinks.MSSqlServer.Sinks.MSSqlServer.Options;
 using SoCreate.Extensions.Logging.Exceptions;
 using SoCreate.Extensions.Logging.Options;
 
 namespace SoCreate.Extensions.Logging.LogAdapters
 {
-    public class SqlServerLoggerLogConfigurationAdapter
+    public class ActivityLoggerLogConfigurationAdapter
     {
         public const string LogTypeKey = "LogType";
         private readonly IConfiguration _configuration;
 
-        public SqlServerLoggerLogConfigurationAdapter(IConfiguration configuration)
+        public ActivityLoggerLogConfigurationAdapter(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -40,11 +41,11 @@ namespace SoCreate.Extensions.Logging.LogAdapters
                     "The sql connection string is not set. Either set in configuration or setup a secret for TYPE--Infrastructure--ConnectionString.");
             }
 
-            var options = new ColumnOptions();
-            options.Store.Remove(StandardColumn.Properties);
-            options.Store.Remove(StandardColumn.Exception);
-            options.Store.Add(StandardColumn.LogEvent);
-            options.AdditionalColumns = new Collection<SqlColumn>
+            var columnOptions = new ColumnOptions();
+            columnOptions.Store.Remove(StandardColumn.Properties);
+            columnOptions.Store.Remove(StandardColumn.Exception);
+            columnOptions.Store.Add(StandardColumn.LogEvent);
+            columnOptions.AdditionalColumns = new Collection<SqlColumn>
             {
                 new SqlColumn { ColumnName = "ActivityType", DataType = SqlDbType.NVarChar, DataLength = 256 },
                 new SqlColumn { ColumnName = "KeyType", DataType = SqlDbType.NVarChar, DataLength = 64, AllowNull = true },
@@ -57,15 +58,17 @@ namespace SoCreate.Extensions.Logging.LogAdapters
 
             try
             {
-                return loggerConfiguration.WriteTo.Logger(cc =>
-                    cc.Filter.ByIncludingOnly(WithProperty(LogTypeKey, logType))
-                        .WriteTo.MSSqlServer(
-                            connectionString: sqlConnectionString,
-                            tableName: tableName,
-                            schemaName: schemaName,
-                            columnOptions: options,
-                            batchPostingLimit: activityLoggerOptions.BatchSize ?? 50
-                        ));
+                var sinkOptions = new SinkOptions
+                {
+                    SchemaName = schemaName,
+                    TableName = tableName,
+                    AutoCreateSqlTable = false
+                };
+
+                return loggerConfiguration.AuditTo.Logger(cc =>
+                      cc.Filter.ByIncludingOnly(WithProperty(LogTypeKey, logType))
+                        .Filter.ByIncludingOnly(le => le.Level == LogEventLevel.Information)
+                        .AuditTo.MSSqlServer(sqlConnectionString, sinkOptions, columnOptions: columnOptions));
             }
             catch (Exception exception)
             {

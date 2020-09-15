@@ -74,7 +74,7 @@ namespace SoCreate.Extensions.Logging.Extensions
 
             builder.Services.AddTransient<Action<ServiceContext>>(EnrichLoggerWithContext);
             builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
-            builder.Services.AddTransient<SqlServerLoggerLogConfigurationAdapter>();
+            builder.Services.AddTransient<ActivityLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
             builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
 
@@ -104,7 +104,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             if (configuration.LogToActivityLogger)
             {
                 var activityLoggerOptions = serviceProvider.GetService<IOptions<ActivityLoggerOptions>>();
-                serviceProvider.GetRequiredService<SqlServerLoggerLogConfigurationAdapter>()
+                serviceProvider.GetRequiredService<ActivityLoggerLogConfigurationAdapter>()
                     .ApplyConfiguration(loggerConfig, activityLoggerOptions.Value);
             }
 

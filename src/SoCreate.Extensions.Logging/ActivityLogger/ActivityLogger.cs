@@ -89,7 +89,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("ActivityType", activityEnum!.ToString()),
                 new PropertyEnricher("TenantId", tenantId),
                 new PropertyEnricher("UserId", userId),
-                new PropertyEnricher(SqlServerLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
+                new PropertyEnricher(ActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
 
             if (keyId != null)
@@ -112,9 +112,16 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 properties.Add(new PropertyEnricher("AccountId", accountId));
             }
 
-            using (LogContext.Push(properties.ToArray()))
+            try
             {
-                _logger.Information(message, messageData);
+                using (LogContext.Push(properties.ToArray()))
+                {
+                    _logger.Information(message, messageData);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Error activity logging: {message}", e.Message, e);
             }
         }
     }
