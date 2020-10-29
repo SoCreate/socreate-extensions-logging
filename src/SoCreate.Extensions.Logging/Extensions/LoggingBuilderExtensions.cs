@@ -44,7 +44,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             this ILoggingBuilder builder,
             ServiceLoggingConfiguration serviceLoggingConfiguration)
         {
-            if (serviceLoggingConfiguration.ApplicationInsightsTelemetry)
+            if (serviceLoggingConfiguration.ApplicationInsightsTelemetryOn)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
             }
