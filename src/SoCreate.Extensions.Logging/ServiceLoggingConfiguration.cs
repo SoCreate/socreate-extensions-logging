@@ -8,10 +8,10 @@ namespace SoCreate.Extensions.Logging
 {
     public class ServiceLoggingConfiguration
     {
-        public bool LogToApplicationInsights { get; private set; } = true;
+        public bool LogToApplicationInsights { get; private set; } = false;
 
         public bool LogToActivityLogger { get; private set; } = false;
-        
+
         public bool RegisterActivityLogger { get; private set; } = false;
 
         public bool ApplicationInsightsTelemetryOn { get; private set; }
@@ -23,7 +23,7 @@ namespace SoCreate.Extensions.Logging
         public Type? TenantProvider { get; private set; }
 
         public Type? AccountProvider { get; private set; }
-        
+
         public Type? AccountProviderType { get; private set; }
 
         public ServiceLoggingConfiguration(HostBuilderContext hostBuilderContext)
@@ -48,7 +48,7 @@ namespace SoCreate.Extensions.Logging
             LogToApplicationInsights = true;
             return this;
         }
-        
+
         public ServiceLoggingConfiguration SetApplicationInsightsTelemetry(bool on)
         {
             ApplicationInsightsTelemetryOn = on;
@@ -60,7 +60,7 @@ namespace SoCreate.Extensions.Logging
             LogToApplicationInsights = true;
             var appInsightsConfiguration = new AppInsightsConfiguration();
             action.Invoke(appInsightsConfiguration);
-            
+
             UserProvider = appInsightsConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
 
             return this;
@@ -74,7 +74,7 @@ namespace SoCreate.Extensions.Logging
             RegisterActivityLogger = true;
             var activityLoggerConfiguration = new ActivityLoggerConfiguration<TKeyType>();
             action.Invoke(activityLoggerConfiguration);
-            
+
             AccountProviderType = typeof(IAccountProvider<TKeyType>);
             UserProvider = activityLoggerConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
             AccountProvider = activityLoggerConfiguration.AccountProvider ?? throw new Exception("AccountProvider must be configured");
