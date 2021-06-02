@@ -17,21 +17,21 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         private readonly ILogger _logger;
         private readonly string _activityLogType;
         private readonly string _version;
-        private readonly IUserProvider _userProvider;
+        private readonly IProfileProvider _profileProvider;
         private readonly IAccountProvider<TKeyType> _accountProvider;
         private readonly ITenantProvider _tenantProvider;
 
         public ActivityLogger(
             ILoggerProvider loggerProvider,
             IOptions<ActivityLoggerOptions> activityLoggerOptions,
-            IUserProvider userProvider,
+            IProfileProvider profileProvider,
             IAccountProvider<TKeyType> accountProvider,
             ITenantProvider tenantProvider)
         {
             _logger = ((LoggerProvider)loggerProvider).Logger;
             _activityLogType = activityLoggerOptions.Value.ActivityLogType ?? "DefaultType";
             _version = activityLoggerOptions.Value.ActivityLogVersion ?? "1.0.0";
-            _userProvider = userProvider;
+            _profileProvider = profileProvider;
             _accountProvider = accountProvider;
             _tenantProvider = tenantProvider;
         }
@@ -78,9 +78,9 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
             string message,
             params object[] messageData)
         {
-            // call to get tenant, user id and account id
+            // call to get tenant, profile id and account id
             var tenantId = _tenantProvider.GetTenantId();
-            var userId = _userProvider.GetUserId();
+            var profileId = _profileProvider.GetProfileId();
 
             var properties = new List<ILogEventEnricher>
             {
@@ -88,7 +88,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
                 new PropertyEnricher("Version", _version),
                 new PropertyEnricher("ActivityType", activityEnum!.ToString()),
                 new PropertyEnricher("TenantId", tenantId),
-                new PropertyEnricher("UserId", userId),
+                new PropertyEnricher("ProfileId", profileId),
                 new PropertyEnricher(ActivityLoggerLogConfigurationAdapter.LogTypeKey, _activityLogType)
             };
 

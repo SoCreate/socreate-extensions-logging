@@ -52,7 +52,7 @@ namespace SoCreate.Extensions.Logging.LogAdapters
                 new SqlColumn { ColumnName = "KeyId", DataType = SqlDbType.Int, NonClusteredIndex = true, AllowNull = true },
                 new SqlColumn { ColumnName = "AccountId", DataType = SqlDbType.Int, NonClusteredIndex = true, AllowNull = true },
                 new SqlColumn { ColumnName = "TenantId", DataType = SqlDbType.Int, NonClusteredIndex = true },
-                new SqlColumn { ColumnName = "UserId", DataType = SqlDbType.Int, NonClusteredIndex = true },
+                new SqlColumn { ColumnName = "ProfileId", DataType = SqlDbType.Int, NonClusteredIndex = true },
                 new SqlColumn { ColumnName = "Version", DataType = SqlDbType.NVarChar, DataLength = 10 },
             };
 

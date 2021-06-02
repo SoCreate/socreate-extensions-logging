@@ -18,7 +18,7 @@ namespace SoCreate.Extensions.Logging
 
         public IConfiguration Configuration { get; }
 
-        public Type? UserProvider { get; private set; }
+        public Type? ProfileProvider { get; private set; }
 
         public Type? TenantProvider { get; private set; }
 
@@ -61,7 +61,7 @@ namespace SoCreate.Extensions.Logging
             var appInsightsConfiguration = new AppInsightsConfiguration();
             action.Invoke(appInsightsConfiguration);
 
-            UserProvider = appInsightsConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
+            ProfileProvider = appInsightsConfiguration.ProfileProvider ?? throw new Exception("ProfileProvider must be configured");
 
             return this;
         }
@@ -76,7 +76,7 @@ namespace SoCreate.Extensions.Logging
             action.Invoke(activityLoggerConfiguration);
 
             AccountProviderType = typeof(IAccountProvider<TKeyType>);
-            UserProvider = activityLoggerConfiguration.UserProvider ?? throw new Exception("UserProvider must be configured");
+            ProfileProvider = activityLoggerConfiguration.ProfileProvider ?? throw new Exception("ProfileProvider must be configured");
             AccountProvider = activityLoggerConfiguration.AccountProvider ?? throw new Exception("AccountProvider must be configured");
             TenantProvider = activityLoggerConfiguration.TenantProvider ?? throw new Exception("TenantProvider must be configured");
 
@@ -86,20 +86,20 @@ namespace SoCreate.Extensions.Logging
 
     public class AppInsightsConfiguration
     {
-        public AppInsightsConfiguration WithUserProvider<TUserProvider>() where TUserProvider : IUserProvider
+        public AppInsightsConfiguration WithProfileProvider<TProfileProvider>() where TProfileProvider : IProfileProvider
         {
-            UserProvider = typeof(TUserProvider);
+            ProfileProvider = typeof(TProfileProvider);
             return this;
         }
 
-        public Type UserProvider { get; set; } = null!;
+        public Type ProfileProvider { get; set; } = null!;
     }
 
     public class ActivityLoggerConfiguration<TKeyType>
     {
-        public ActivityLoggerConfiguration<TKeyType> WithUserProvider<TUserProvider>() where TUserProvider : IUserProvider
+        public ActivityLoggerConfiguration<TKeyType> WithProfileProvider<TProfileProvider>() where TProfileProvider : IProfileProvider
         {
-            UserProvider = typeof(TUserProvider);
+            ProfileProvider = typeof(TProfileProvider);
             return this;
         }
 
@@ -115,7 +115,7 @@ namespace SoCreate.Extensions.Logging
             return this;
         }
 
-        public Type UserProvider { get; private set; } = null!;
+        public Type ProfileProvider { get; private set; } = null!;
 
         public Type TenantProvider { get; private set; } = null!;
 
