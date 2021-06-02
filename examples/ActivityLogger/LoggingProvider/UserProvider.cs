@@ -2,9 +2,9 @@ using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 
 namespace ActivityLogger.LoggingProvider
 {
-    public class UserProvider : IUserProvider
+    public class ProfileProvider : IProfileProvider
     {
-        public int GetUserId()
+        public int GetProfileId()
         {
             // Hardcoded as an example
             return 1;

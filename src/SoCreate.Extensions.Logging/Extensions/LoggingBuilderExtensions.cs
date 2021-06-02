@@ -56,9 +56,9 @@ namespace SoCreate.Extensions.Logging.Extensions
             // Add the log level configuration
             builder.AddConfiguration(configuration.GetSection("Logging"));
 
-            if (serviceLoggingConfiguration.UserProvider != null)
+            if (serviceLoggingConfiguration.ProfileProvider != null)
             {
-                builder.Services.AddSingleton(typeof(IUserProvider), serviceLoggingConfiguration.UserProvider);
+                builder.Services.AddSingleton(typeof(IProfileProvider), serviceLoggingConfiguration.ProfileProvider);
             }
             
             if (serviceLoggingConfiguration.RegisterActivityLogger)
@@ -95,10 +95,10 @@ namespace SoCreate.Extensions.Logging.Extensions
 
             if (configuration.LogToApplicationInsights)
             {
-                var userProvider = serviceProvider.GetService<IUserProvider>();
+                var profileProvider = serviceProvider.GetService<IProfileProvider>();
                 var serviceContext = serviceProvider.GetService<StatelessServiceContext>() ?? serviceProvider.GetService<StatefulServiceContext>() as ServiceContext;
                 serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
-                     .ApplyConfiguration(loggerConfig, userProvider, serviceContext);
+                     .ApplyConfiguration(loggerConfig, profileProvider, serviceContext);
             }
 
             if (configuration.LogToActivityLogger)

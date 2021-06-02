@@ -14,9 +14,9 @@ namespace SoCreate.Extensions.Logging.Extensions
     static class ApplicationInsightsLoggerExtensions
     {
         public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
-            string instrumentationKey, IUserProvider? userProvider = null, ServiceContext? serviceContext = null)
+            string instrumentationKey, IProfileProvider? profileProvider = null, ServiceContext? serviceContext = null)
         {
-            config.WriteTo.ApplicationInsights(instrumentationKey, new CustomTelemetryConvertor(userProvider, serviceContext));
+            config.WriteTo.ApplicationInsights(instrumentationKey, new CustomTelemetryConvertor(profileProvider, serviceContext));
             return config;
         }
     }
@@ -24,14 +24,14 @@ namespace SoCreate.Extensions.Logging.Extensions
     class CustomTelemetryConvertor : TraceTelemetryConverter
     {
         private readonly ServiceContext? _serviceContext;
-        private readonly Func<int>? _getUserIdFromContext;
+        private readonly Func<int>? _getProfileIdFromContext;
 
-        public CustomTelemetryConvertor(IUserProvider? userProvider = null, ServiceContext? serviceContext = null)
+        public CustomTelemetryConvertor(IProfileProvider? profileProvider = null, ServiceContext? serviceContext = null)
         {
             _serviceContext = serviceContext;
-            if (userProvider != null)
+            if (profileProvider != null)
             {
-                _getUserIdFromContext = userProvider.GetUserId;
+                _getProfileIdFromContext = profileProvider.GetProfileId;
             }
         }
 
@@ -68,9 +68,9 @@ namespace SoCreate.Extensions.Logging.Extensions
                     telemetry.Context.Operation.Id = Activity.Current?.RootId;
                 }
 
-                if (_getUserIdFromContext != null)
+                if (_getProfileIdFromContext != null)
                 {
-                    telemetry.Context.User.Id = _getUserIdFromContext().ToString();
+                    telemetry.Context.User.Id = _getProfileIdFromContext().ToString();
                 }
 
                 yield return telemetry;

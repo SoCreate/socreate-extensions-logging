@@ -11,8 +11,8 @@ Add the instrument key to the appSettings.json.
     }
 }
 ```
-Call AddApplicationInsights on the logging config to turn on app insights logging. You can optionally add the user provider that will set
- the relevant user id on each log.
+Call AddApplicationInsights on the logging config to turn on app insights logging. You can optionally add the profile provider that will set
+ the relevant profile id on each log.
 ```c#
 var host = new HostBuilder()
     .ConfigureLogging((hostingContext, builder) => 
@@ -21,8 +21,8 @@ var host = new HostBuilder()
              loggingConfig =>
              {
                  loggingConfig.AddApplicationInsights();
-                 // OR if you want to add a user provider
-                 loggingConfig.AddApplicationInsights(appConfig => appConfig.WithUserProvider<UserProvider>())
+                 // OR if you want to add a profile provider
+                 loggingConfig.AddApplicationInsights(appConfig => appConfig.WithProfileProvider<ProfileProvider>())
              });
 )
 .Build();
@@ -32,7 +32,7 @@ var host = new HostBuilder()
 
 ## Add Activity Logging (Powered By SqlServer)
 
-Call AddActivityLogging on the logging config to turn on Activity logging. You musty configure the providers for user, account and tenant. 
+Call AddActivityLogging on the logging config to turn on Activity logging. You musty configure the providers for provider, account and tenant. 
 The example project has examples of implemented classes for those interfaces.
 ```c#
 var host = new HostBuilder()
@@ -45,12 +45,12 @@ var host = new HostBuilder()
                        activityConfig =>
                            activityConfig
                                .WithAccountProvider<AccountProvider>()
-                               .WithUserProvider<UserProvider>()
+                               .WithProfileProvider<ProfileProvider>()
                                .WithTenantProvider<TenantProvider>());
            });
     .Build();
 ```
-The Activity logger is powered by Sql Server and is used to keep track of user activity. The structured logging has a 
+The Activity logger is powered by Sql Server and is used to keep track of profile activity. The structured logging has a 
 short message that is shown to the customer as well as extra data that is used for debugging. 
 
 

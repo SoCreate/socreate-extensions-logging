@@ -15,10 +15,10 @@ namespace SoCreate.Extensions.Logging.LogAdapters
             _configuration = configuration;
         }
 
-        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IUserProvider? userProvider, ServiceContext? serviceContext)
+        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, ServiceContext? serviceContext)
         {
             var instrumentationKey = _configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-            return loggerConfiguration.WithApplicationInsights(instrumentationKey, userProvider, serviceContext);
+            return loggerConfiguration.WithApplicationInsights(instrumentationKey, profileProvider, serviceContext);
         }
     }
 }

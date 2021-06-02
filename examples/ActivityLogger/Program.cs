@@ -81,12 +81,12 @@ namespace ActivityLogger
                             loggingConfig =>
                             {
                                 loggingConfig
-                                    .AddApplicationInsights(appConfig => appConfig.WithUserProvider<UserProvider>());
+                                    .AddApplicationInsights(appConfig => appConfig.WithProfileProvider<ProfileProvider>());
                                 // .AddActivityLogging<ExampleKeyTypeEnum>(
                                 //     activityConfig =>
                                 //         activityConfig
                                 //             .WithAccountProvider<AccountProvider>()
-                                //             .WithUserProvider<UserProvider>()
+                                //             .WithProfileProvider<ProfileProvider>()
                                 //             .WithTenantProvider<TenantProvider>());
                             });
                     });
