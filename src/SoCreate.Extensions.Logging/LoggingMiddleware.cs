@@ -65,7 +65,7 @@ namespace SoCreate.Extensions.Logging
         private async Task<string> FormatRequest(HttpRequest request)
         {
             //This line allows us to set the reader for the request back at the beginning of its stream.
-            request.EnableRewind();
+            request.EnableBuffering();
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
             await request.Body.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
             var bodyAsText = Encoding.UTF8.GetString(buffer);
