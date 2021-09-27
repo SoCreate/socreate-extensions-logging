@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Fabric;
 using System.Text.Encodings.Web;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.ServiceFabric;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +30,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             builder.ConfigureServices(serviceLoggingConfiguration);
             return builder;
         }
-        
+
         public static ILoggingBuilder AddServiceLogging(
             this ILoggingBuilder builder,
             WebHostBuilderContext webHostBuilderContext,
@@ -47,12 +49,13 @@ namespace SoCreate.Extensions.Logging.Extensions
             if (serviceLoggingConfiguration.ApplicationInsightsTelemetryOn)
             {
                 builder.Services.AddApplicationInsightsTelemetry();
+                builder.Services.AddSingleton<ITelemetryInitializer>(_ => new FabricTelemetryInitializer());
             }
-            
+
             builder.ClearProviders();
 
             var configuration = serviceLoggingConfiguration.Configuration;
-            
+
             // Add the log level configuration
             builder.AddConfiguration(configuration.GetSection("Logging"));
 
@@ -60,12 +63,12 @@ namespace SoCreate.Extensions.Logging.Extensions
             {
                 builder.Services.AddSingleton(typeof(IProfileProvider), serviceLoggingConfiguration.ProfileProvider);
             }
-            
+
             if (serviceLoggingConfiguration.RegisterActivityLogger)
             {
                 builder.Services.Configure<ActivityLoggerOptions>(configuration.GetSection("ActivityLogger"));
-                builder.Services.AddSingleton(serviceLoggingConfiguration.AccountProviderType, serviceLoggingConfiguration.AccountProvider);
-                builder.Services.AddSingleton(typeof(ITenantProvider), serviceLoggingConfiguration.TenantProvider);
+                builder.Services.AddSingleton(serviceLoggingConfiguration.AccountProviderType!, serviceLoggingConfiguration.AccountProvider!);
+                builder.Services.AddSingleton(typeof(ITenantProvider), serviceLoggingConfiguration.TenantProvider!);
                 builder.Services.AddSingleton(typeof(IActivityLogger<,>), typeof(ActivityLogger<,>));
             }
 
@@ -105,7 +108,7 @@ namespace SoCreate.Extensions.Logging.Extensions
             {
                 var activityLoggerOptions = serviceProvider.GetService<IOptions<ActivityLoggerOptions>>();
                 serviceProvider.GetRequiredService<ActivityLoggerLogConfigurationAdapter>()
-                    .ApplyConfiguration(loggerConfig, activityLoggerOptions.Value);
+                    .ApplyConfiguration(loggerConfig, activityLoggerOptions!.Value);
             }
 
             return new LoggerProvider(loggerConfig.CreateLogger());
