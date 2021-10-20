@@ -58,7 +58,7 @@ namespace SoCreate.Extensions.Logging.LogAdapters
 
             try
             {
-                var sinkOptions = new SinkOptions
+                var sinkOptions = new MSSqlServerSinkOptions
                 {
                     SchemaName = schemaName,
                     TableName = tableName,
