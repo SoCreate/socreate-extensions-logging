@@ -39,8 +39,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         public void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
             TKeyType keyType,
-            int keyId,
-            int? accountId,
+            string keyId,
+            string? accountId,
             object? additionalData,
             string message,
             params object[] messageData)
@@ -61,7 +61,7 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         // Log when the key type and keyid are null
         public void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
-            int? accountId,
+            string? accountId,
             object? additionalData,
             string message,
             params object[] messageData)
@@ -72,8 +72,8 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         private void Log<TActivityEnum>(
             TActivityEnum activityEnum,
             string? keyType,
-            int? keyId,
-            int? accountId,
+            string? keyId,
+            string? accountId,
             object? additionalData,
             string message,
             params object[] messageData)
