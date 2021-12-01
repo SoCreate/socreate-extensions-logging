@@ -27,8 +27,8 @@ namespace ActivityLogger
                     activityLogger.LogActivity(
                         ExampleActionType.GetOrder,
                         ExampleKeyTypeEnum.OrderId,
-                        orderId,
-                        1,
+                        orderId.ToString(),
+                        "MA13-97H-DQF",
                         new { Price = "10.54", ShipDate = "10-21-2019" },
                         "Order was placed by {CustomerName} on {OrderDate}",
                         "Bill Battson",
@@ -39,7 +39,7 @@ namespace ActivityLogger
                     activityLogger.LogActivity(
                         ExampleActionType.GetNote,
                         ExampleKeyTypeEnum.NoteId,
-                        noteId,
+                        noteId.ToString(),
                         null,
                         null,
                         "This is without account {Key} or additional data",
@@ -48,7 +48,7 @@ namespace ActivityLogger
                     // dont send the key type or key id
                     activityLogger.LogActivity(
                         ExampleActionType.GetNote,
-                        1,
+                        "MA13-97H-DQF",
                         null,
                         "This log does not have a key type, because we attempted to find a note and there was not one");
 

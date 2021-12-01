@@ -7,15 +7,15 @@ namespace SoCreate.Extensions.Logging.ActivityLogger
         void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
             TKeyType keyType,
-            int keyId,
-            int? accountId,
+            string keyId,
+            string? accountId,
             object? additionalData,
             string message,
             params object[] messageData);
 
         void LogActivity<TActivityEnum>(
             TActivityEnum activityEnum,
-            int? accountId,
+            string? accountId,
             object? additionalData,
             string message,
             params object[] messageData);

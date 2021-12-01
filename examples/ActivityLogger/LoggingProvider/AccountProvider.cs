@@ -4,10 +4,10 @@ namespace ActivityLogger.LoggingProvider
 {
     public class AccountProvider : IAccountProvider<ExampleKeyTypeEnum>
     {
-        public int? GetAccountId(ExampleKeyTypeEnum keyType, int keyId)
+        public string? GetAccountId(ExampleKeyTypeEnum keyType, string keyId)
         {
             // hardcoded as an example
-            return keyType == ExampleKeyTypeEnum.NoteId ? 3 : 4;
+            return keyType == ExampleKeyTypeEnum.NoteId ? "DC11-VWD-WPJ" : "OC12-MBJ-P96";
         }
     }
 }

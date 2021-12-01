@@ -1,5 +1,4 @@
-﻿using System;
-using SoCreate.Extensions.Logging.ActivityLogger;
+﻿using SoCreate.Extensions.Logging.ActivityLogger;
 
 namespace ActivityLogger
 {
@@ -13,7 +12,7 @@ namespace ActivityLogger
             activityLogger.LogActivity(
                 ExampleActionType.GetOrder,
                 ExampleKeyTypeEnum.OrderId,
-                id,
+                id.ToString(),
                 null,
                 null,
                 "Did you see that interesting thing, the account id was retrieved using the function? {InterestingString}", interesting);

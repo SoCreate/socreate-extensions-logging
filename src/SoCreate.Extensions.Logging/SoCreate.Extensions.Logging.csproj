@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Jonathan McElroy, Jami Lurock</Authors>
+    <Authors>SoCreate</Authors>
     <Company>SoCreate</Company>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://github.com/SoCreate/socreate-extensions-logging/blob/master/LICENSE</PackageLicenseUrl>
@@ -11,7 +11,7 @@
     <PackageTags>Logging</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Copyright>© SoCreate. All rights reserved.</Copyright>
-    <Version>7.1.1</Version>
+    <Version>8.0.0</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
