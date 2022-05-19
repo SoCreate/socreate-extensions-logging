@@ -45,6 +45,8 @@ namespace SoCreate.Extensions.Logging.LogAdapters
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Remove(StandardColumn.Exception);
             columnOptions.Store.Add(StandardColumn.LogEvent);
+            columnOptions.TimeStamp.DataType = SqlDbType.DateTime2;
+            columnOptions.TimeStamp.ConvertToUtc = true;
             columnOptions.AdditionalColumns = new Collection<SqlColumn>
             {
                 new SqlColumn { ColumnName = "ActivityType", DataType = SqlDbType.VarChar, DataLength = 256 },
