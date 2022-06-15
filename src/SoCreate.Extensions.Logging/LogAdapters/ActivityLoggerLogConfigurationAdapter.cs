@@ -44,7 +44,6 @@ namespace SoCreate.Extensions.Logging.LogAdapters
             var columnOptions = new ColumnOptions();
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Remove(StandardColumn.Exception);
-            columnOptions.Store.Add(StandardColumn.LogEvent);
             columnOptions.TimeStamp.DataType = SqlDbType.DateTime2;
             columnOptions.TimeStamp.ConvertToUtc = true;
             columnOptions.AdditionalColumns = new Collection<SqlColumn>
