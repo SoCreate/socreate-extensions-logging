@@ -1,12 +1,9 @@
-using System;
+namespace SoCreate.Extensions.Logging.Exceptions;
 
-namespace SoCreate.Extensions.Logging.Exceptions
+public class ActivityLoggerConnectionException : Exception
 {
-    public class ActivityLoggerConnectionException : Exception
+    public ActivityLoggerConnectionException(string message) : base(message)
     {
-        public ActivityLoggerConnectionException(string message) : base(message)
-        {
-            
-        }
+        
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace ActivityLogger
+﻿namespace ActivityLogger;
+
+public enum ExampleActionType
 {
-    public enum ExampleActionType
-    {
-        GetOrder,
-        UpdateOrder,
-        GetNote
-    }
+    GetOrder,
+    UpdateOrder,
+    GetNote
 }

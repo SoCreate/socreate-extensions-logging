@@ -1,13 +1,12 @@
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 
-namespace ActivityLogger.LoggingProvider
+namespace ActivityLogger.LoggingProvider;
+
+public class ProfileProvider : IProfileProvider
 {
-    public class ProfileProvider : IProfileProvider
+    public int GetProfileId()
     {
-        public int GetProfileId()
-        {
-            // Hardcoded as an example
-            return 1;
-        }
+        // Hardcoded as an example
+        return 1;
     }
 }

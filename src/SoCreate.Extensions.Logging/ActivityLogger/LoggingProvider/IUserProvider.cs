@@ -1,7 +1,6 @@
-namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider
+namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
+
+public interface IProfileProvider
 {
-    public interface IProfileProvider
-    {
-        int GetProfileId();
-    }
+    int GetProfileId();
 }

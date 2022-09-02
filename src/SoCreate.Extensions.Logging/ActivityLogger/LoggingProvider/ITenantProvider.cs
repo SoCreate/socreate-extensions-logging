@@ -1,7 +1,6 @@
-namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider
+namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
+
+public interface ITenantProvider
 {
-    public interface ITenantProvider
-    {
-        int GetTenantId();
-    }
+    int GetTenantId();
 }

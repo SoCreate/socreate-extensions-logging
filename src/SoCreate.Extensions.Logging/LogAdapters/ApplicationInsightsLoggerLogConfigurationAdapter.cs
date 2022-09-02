@@ -4,21 +4,20 @@ using Serilog;
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 using SoCreate.Extensions.Logging.Extensions;
 
-namespace SoCreate.Extensions.Logging.LogAdapters
+namespace SoCreate.Extensions.Logging.LogAdapters;
+
+class ApplicationInsightsLoggerLogConfigurationAdapter
 {
-    class ApplicationInsightsLoggerLogConfigurationAdapter
+    private readonly IConfiguration _configuration;
+
+    public ApplicationInsightsLoggerLogConfigurationAdapter(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+    }
 
-        public ApplicationInsightsLoggerLogConfigurationAdapter(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, ServiceContext? serviceContext)
-        {
-            var instrumentationKey = _configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-            return loggerConfiguration.WithApplicationInsights(instrumentationKey, profileProvider, serviceContext);
-        }
+    public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, ServiceContext? serviceContext)
+    {
+        var connectionString = _configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+        return loggerConfiguration.WithApplicationInsights(connectionString, profileProvider, serviceContext);
     }
 }
