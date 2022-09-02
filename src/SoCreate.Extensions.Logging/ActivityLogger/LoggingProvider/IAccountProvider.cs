@@ -1,7 +1,6 @@
-namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider
+namespace SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
+
+public interface IAccountProvider<TKeyType>
 {
-    public interface IAccountProvider<TKeyType>
-    {
-        string? GetAccountId(TKeyType keyType, string keyId);
-    }
+    string? GetAccountId(TKeyType keyType, string keyId);
 }

@@ -1,9 +1,8 @@
-namespace ActivityLogger
+namespace ActivityLogger;
+
+public enum ExampleKeyTypeEnum
 {
-    public enum ExampleKeyTypeEnum
-    {
-        OrderId,
-        ProfileId,
-        NoteId
-    }
+    OrderId,
+    ProfileId,
+    NoteId
 }
