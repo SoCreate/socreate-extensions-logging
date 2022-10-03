@@ -1,5 +1,4 @@
-﻿using System.Fabric;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Serilog;
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 using SoCreate.Extensions.Logging.Extensions;
@@ -15,9 +14,9 @@ class ApplicationInsightsLoggerLogConfigurationAdapter
         _configuration = configuration;
     }
 
-    public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, ServiceContext? serviceContext)
+    public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, string? serviceName)
     {
         var connectionString = _configuration.GetValue<string>("ApplicationInsights:ConnectionString");
-        return loggerConfiguration.WithApplicationInsights(connectionString, profileProvider, serviceContext);
+        return loggerConfiguration.WithApplicationInsights(connectionString, profileProvider, serviceName);
     }
 }
