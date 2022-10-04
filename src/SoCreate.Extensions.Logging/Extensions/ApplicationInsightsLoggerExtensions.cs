@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Fabric;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Serilog;
@@ -11,22 +10,25 @@ namespace SoCreate.Extensions.Logging.Extensions;
 
 static class ApplicationInsightsLoggerExtensions
 {
-    public static LoggerConfiguration WithApplicationInsights(this LoggerConfiguration config,
-        string connectionString, IProfileProvider? profileProvider = null, ServiceContext? serviceContext = null)
+    public static LoggerConfiguration WithApplicationInsights(
+        this LoggerConfiguration config,
+        string connectionString,
+        string serviceName,
+        IProfileProvider? profileProvider = null)
     {
-        config.WriteTo.ApplicationInsights(connectionString, new CustomTelemetryConvertor(profileProvider, serviceContext));
+        config.WriteTo.ApplicationInsights(connectionString, new CustomTelemetryConvertor(serviceName, profileProvider));
         return config;
     }
 }
 
 class CustomTelemetryConvertor : TraceTelemetryConverter
 {
-    private readonly ServiceContext? _serviceContext;
+    private readonly string _serviceName;
     private readonly Func<int>? _getProfileIdFromContext;
 
-    public CustomTelemetryConvertor(IProfileProvider? profileProvider = null, ServiceContext? serviceContext = null)
+    public CustomTelemetryConvertor(string serviceName, IProfileProvider? profileProvider = null)
     {
-        _serviceContext = serviceContext;
+        _serviceName = serviceName;
         if (profileProvider != null)
         {
             _getProfileIdFromContext = profileProvider.GetProfileId;
@@ -37,33 +39,12 @@ class CustomTelemetryConvertor : TraceTelemetryConverter
     {
         foreach (ITelemetry telemetry in base.Convert(logEvent, formatProvider))
         {
-            if (_serviceContext != null)
-            {
-                telemetry.Context.Cloud.RoleName = _serviceContext.ServiceName.ToString();
-                telemetry.Context.Cloud.RoleInstance = _serviceContext.ReplicaOrInstanceId.ToString();
-                ServiceFabricLoggingExtensions.AddServiceFabricPropertiesToTelemetry(_serviceContext, telemetry.Context.GlobalProperties);
-            }
-            else
-            {
-                if (logEvent.Properties.ContainsKey(ServiceFabricLoggingExtensions.ServiceContextProperties
-                    .ServiceName))
-                {
-                    telemetry.Context.Cloud.RoleName = logEvent
-                        .Properties[ServiceFabricLoggingExtensions.ServiceContextProperties.ServiceName].ToString();
-                }
-
-                if (logEvent.Properties.ContainsKey(ServiceFabricLoggingExtensions.ServiceContextProperties
-                    .InstanceId))
-                {
-                    telemetry.Context.Cloud.RoleInstance = logEvent
-                        .Properties[ServiceFabricLoggingExtensions.ServiceContextProperties.InstanceId].ToString();
-                }
-            }
+            telemetry.Context.Cloud.RoleName = _serviceName;
 
             // Add Operation Id
             if (Activity.Current?.RootId != null)
             {
-                telemetry.Context.Operation.Id = Activity.Current?.RootId;
+                telemetry.Context.Operation.Id = Activity.Current.RootId;
             }
 
             if (_getProfileIdFromContext != null)

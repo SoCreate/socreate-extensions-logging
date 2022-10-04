@@ -1,7 +1,4 @@
-﻿using System.Fabric;
-using System.Text.Encodings.Web;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.ServiceFabric;
+﻿using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,7 +45,6 @@ public static class LoggingBuilderExtensions
         if (serviceLoggingConfiguration.ApplicationInsightsTelemetryOn)
         {
             builder.Services.AddApplicationInsightsTelemetry();
-            builder.Services.AddSingleton<ITelemetryInitializer>(_ => new FabricTelemetryInitializer());
         }
 
         builder.ClearProviders();
@@ -74,22 +70,15 @@ public static class LoggingBuilderExtensions
         builder.Services.Configure<LoggingMiddlewareOptions>(configuration.GetSection("Logging"));
         builder.Services.AddSingleton<LoggingLevelSwitch>();
 
-        builder.Services.AddTransient<Action<ServiceContext>>(EnrichLoggerWithContext);
-        builder.Services.AddTransient<LoggerConfiguration>(services => GetLoggerConfiguration(services, configuration));
+        builder.Services.AddTransient(services => GetLoggerConfiguration(services, configuration));
         builder.Services.AddTransient<ActivityLoggerLogConfigurationAdapter>();
         builder.Services.AddTransient<ApplicationInsightsLoggerLogConfigurationAdapter>();
-        builder.Services.AddTransient(serviceProvider => JavaScriptEncoder.Default);
+        builder.Services.AddTransient(_ => JavaScriptEncoder.Default);
 
         builder.Services.AddSingleton<ILoggerProvider, LoggerProvider>(services => GetLoggerProvider(services, serviceLoggingConfiguration));
         return builder;
     }
 
-
-    private static Action<ServiceContext> EnrichLoggerWithContext(IServiceProvider serviceProvider)
-    {
-        return context =>
-            ((LoggerProvider)serviceProvider.GetRequiredService<ILoggerProvider>()).Logger.EnrichLoggerWithContextProperties(context);
-    }
 
     private static LoggerProvider GetLoggerProvider(IServiceProvider serviceProvider, ServiceLoggingConfiguration configuration)
     {
@@ -98,9 +87,8 @@ public static class LoggingBuilderExtensions
         if (configuration.LogToApplicationInsights)
         {
             var profileProvider = serviceProvider.GetService<IProfileProvider>();
-            var serviceContext = serviceProvider.GetService<StatelessServiceContext>() ?? serviceProvider.GetService<StatefulServiceContext>() as ServiceContext;
             serviceProvider.GetRequiredService<ApplicationInsightsLoggerLogConfigurationAdapter>()
-                 .ApplyConfiguration(loggerConfig, profileProvider, serviceContext);
+                 .ApplyConfiguration(loggerConfig, profileProvider, configuration.ServiceName);
         }
 
         if (configuration.LogToActivityLogger)

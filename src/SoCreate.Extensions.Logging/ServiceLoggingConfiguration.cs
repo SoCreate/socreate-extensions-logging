@@ -7,11 +7,11 @@ namespace SoCreate.Extensions.Logging;
 
 public class ServiceLoggingConfiguration
 {
-    public bool LogToApplicationInsights { get; private set; } = false;
+    public bool LogToApplicationInsights { get; private set; }
 
-    public bool LogToActivityLogger { get; private set; } = false;
+    public bool LogToActivityLogger { get; private set; }
 
-    public bool RegisterActivityLogger { get; private set; } = false;
+    public bool RegisterActivityLogger { get; private set; }
 
     public bool ApplicationInsightsTelemetryOn { get; private set; }
 
@@ -25,6 +25,8 @@ public class ServiceLoggingConfiguration
 
     public Type? AccountProviderType { get; private set; }
 
+    public string ServiceName { get; private set; }
+
     public ServiceLoggingConfiguration(HostBuilderContext hostBuilderContext)
     {
         var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
@@ -34,12 +36,14 @@ public class ServiceLoggingConfiguration
         }
 
         Configuration = hostBuilderContext.Configuration;
+        ServiceName = hostBuilderContext.HostingEnvironment.ApplicationName;
     }
 
     public ServiceLoggingConfiguration(WebHostBuilderContext webHostBuilderContext)
     {
         ApplicationInsightsTelemetryOn = true;
         Configuration = webHostBuilderContext.Configuration;
+        ServiceName = webHostBuilderContext.HostingEnvironment.ApplicationName;
     }
 
     public ServiceLoggingConfiguration AddApplicationInsights()
