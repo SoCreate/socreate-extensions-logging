@@ -13,20 +13,20 @@ static class ApplicationInsightsLoggerExtensions
     public static LoggerConfiguration WithApplicationInsights(
         this LoggerConfiguration config,
         string connectionString,
-        IProfileProvider? profileProvider = null,
-        string? serviceName = null)
+        string serviceName,
+        IProfileProvider? profileProvider = null)
     {
-        config.WriteTo.ApplicationInsights(connectionString, new CustomTelemetryConvertor(profileProvider, serviceName));
+        config.WriteTo.ApplicationInsights(connectionString, new CustomTelemetryConvertor(serviceName, profileProvider));
         return config;
     }
 }
 
 class CustomTelemetryConvertor : TraceTelemetryConverter
 {
-    private readonly string? _serviceName;
+    private readonly string _serviceName;
     private readonly Func<int>? _getProfileIdFromContext;
 
-    public CustomTelemetryConvertor(IProfileProvider? profileProvider = null, string? serviceName = null)
+    public CustomTelemetryConvertor(string serviceName, IProfileProvider? profileProvider = null)
     {
         _serviceName = serviceName;
         if (profileProvider != null)
@@ -39,15 +39,12 @@ class CustomTelemetryConvertor : TraceTelemetryConverter
     {
         foreach (ITelemetry telemetry in base.Convert(logEvent, formatProvider))
         {
-            if (_serviceName != null)
-            {
-                telemetry.Context.Cloud.RoleName = _serviceName;
-            }
+            telemetry.Context.Cloud.RoleName = _serviceName;
 
             // Add Operation Id
             if (Activity.Current?.RootId != null)
             {
-                telemetry.Context.Operation.Id = Activity.Current?.RootId;
+                telemetry.Context.Operation.Id = Activity.Current.RootId;
             }
 
             if (_getProfileIdFromContext != null)

@@ -14,9 +14,9 @@ class ApplicationInsightsLoggerLogConfigurationAdapter
         _configuration = configuration;
     }
 
-    public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, string? serviceName)
+    public LoggerConfiguration ApplyConfiguration(LoggerConfiguration loggerConfiguration, IProfileProvider? profileProvider, string serviceName)
     {
         var connectionString = _configuration.GetValue<string>("ApplicationInsights:ConnectionString");
-        return loggerConfiguration.WithApplicationInsights(connectionString, profileProvider, serviceName);
+        return loggerConfiguration.WithApplicationInsights(connectionString, serviceName, profileProvider);
     }
 }
