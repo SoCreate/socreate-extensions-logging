@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using SoCreate.Extensions.Logging.ActivityLogger.LoggingProvider;
 
 namespace SoCreate.Extensions.Logging;
@@ -27,23 +25,11 @@ public class ServiceLoggingConfiguration
 
     public string ServiceName { get; private set; }
 
-    public ServiceLoggingConfiguration(HostBuilderContext hostBuilderContext)
-    {
-        var isWebApp = hostBuilderContext.Properties.ContainsKey("UseStartup.StartupType");
-        if (isWebApp)
-        {
-            ApplicationInsightsTelemetryOn = true;
-        }
-
-        Configuration = hostBuilderContext.Configuration;
-        ServiceName = hostBuilderContext.HostingEnvironment.ApplicationName;
-    }
-
-    public ServiceLoggingConfiguration(WebHostBuilderContext webHostBuilderContext)
+    public ServiceLoggingConfiguration(IConfiguration configuration, string serviceName)
     {
         ApplicationInsightsTelemetryOn = true;
-        Configuration = webHostBuilderContext.Configuration;
-        ServiceName = webHostBuilderContext.HostingEnvironment.ApplicationName;
+        Configuration = configuration;
+        ServiceName = serviceName;
     }
 
     public ServiceLoggingConfiguration AddApplicationInsights()
