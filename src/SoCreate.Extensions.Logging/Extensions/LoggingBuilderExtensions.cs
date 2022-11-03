@@ -21,7 +21,9 @@ public static class LoggingBuilderExtensions
         HostBuilderContext hostBuilderContext,
         Action<ServiceLoggingConfiguration> action)
     {
-        var serviceLoggingConfiguration = new ServiceLoggingConfiguration(hostBuilderContext);
+        var serviceLoggingConfiguration = new ServiceLoggingConfiguration(
+            hostBuilderContext.Configuration,
+            hostBuilderContext.HostingEnvironment.ApplicationName);
         action.Invoke(serviceLoggingConfiguration);
         builder.ConfigureServices(serviceLoggingConfiguration);
         return builder;
@@ -32,7 +34,21 @@ public static class LoggingBuilderExtensions
         WebHostBuilderContext webHostBuilderContext,
         Action<ServiceLoggingConfiguration> action)
     {
-        var serviceLoggingConfiguration = new ServiceLoggingConfiguration(webHostBuilderContext);
+        var serviceLoggingConfiguration = new ServiceLoggingConfiguration(
+            webHostBuilderContext.Configuration,
+            webHostBuilderContext.HostingEnvironment.ApplicationName);
+        action.Invoke(serviceLoggingConfiguration);
+        builder.ConfigureServices(serviceLoggingConfiguration);
+        return builder;
+    }
+
+    public static ILoggingBuilder AddServiceLogging(
+        this ILoggingBuilder builder,
+        IConfiguration configuration,
+        string serviceName,
+        Action<ServiceLoggingConfiguration> action)
+    {
+        var serviceLoggingConfiguration = new ServiceLoggingConfiguration(configuration, serviceName);
         action.Invoke(serviceLoggingConfiguration);
         builder.ConfigureServices(serviceLoggingConfiguration);
         return builder;
